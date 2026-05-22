@@ -78,6 +78,7 @@ const outputs = {
   exampleMove: document.querySelector("#exampleMove"),
   v3PositionHint: document.querySelector("#v3PositionHint"),
   v3PairLabel: document.querySelector("#v3PairLabel"),
+  v3PairInlineLabel: document.querySelector("#v3PairInlineLabel"),
   v3FeeTierBadge: document.querySelector("#v3FeeTierBadge"),
   v3CurrentPriceLabel: document.querySelector("#v3CurrentPriceLabel"),
   v3FuturePriceLabel: document.querySelector("#v3FuturePriceLabel"),
@@ -500,8 +501,9 @@ function selectProtocol(protocol) {
 
 function updateV3AssetText() {
   const { symbol, pool } = activeV3Asset;
-  outputs.v3PositionHint.textContent = `Например, вы вносите ликвидность в пару ${pool} V3/V4. Уровень комиссии влияет на потенциальный доход, но не входит в формулу IL.`;
+  outputs.v3PositionHint.textContent = `Ликвидность работает только внутри выбранного диапазона.`;
   outputs.v3PairLabel.textContent = pool.replace("/", " / ");
+  outputs.v3PairInlineLabel.textContent = pool.replace("/", " / ");
   outputs.v3DepositAssetSymbol.textContent = symbol;
   outputs.v3CurrentPriceLabel.textContent = `${symbol} сейчас, $`;
   outputs.v3FuturePriceLabel.textContent = `${symbol} потом, $`;

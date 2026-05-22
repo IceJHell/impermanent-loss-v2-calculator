@@ -256,6 +256,35 @@
             </button>
           </div>
 
+          <section class="v3-setup-panel">
+            <div class="v3-card-title">
+              <div>
+                <h2>Выберите пул и комиссию</h2>
+                <p>Комиссия пула влияет на потенциальный доход от сделок, но сама формула IL считается только от изменения цены и диапазона.</p>
+              </div>
+              <span id="v3PairLabel">ETH / USDC</span>
+            </div>
+
+            <div class="fee-tier-grid" aria-label="Уровень комиссии V3/V4">
+              <button class="fee-tier-button" type="button" data-fee-tier="0.01">
+                <strong>0.01%</strong>
+                <span>Очень стабильные пары</span>
+              </button>
+              <button class="fee-tier-button active" type="button" data-fee-tier="0.05">
+                <strong>0.05%</strong>
+                <span>Стабильные пары</span>
+              </button>
+              <button class="fee-tier-button" type="button" data-fee-tier="0.3">
+                <strong>0.3%</strong>
+                <span>Большинство пар</span>
+              </button>
+              <button class="fee-tier-button" type="button" data-fee-tier="1">
+                <strong>1%</strong>
+                <span>Волатильные пары</span>
+              </button>
+            </div>
+          </section>
+
           <div class="v3-dashboard">
             <div class="v3-left">
               <section class="v3-card estimated-card">
@@ -280,7 +309,7 @@
               <section class="v3-card">
                 <div class="v3-card-title">
                   <h2>Позиция</h2>
-                  <span id="v3PairLabel">ETH / USDC</span>
+                  <span id="v3PairInlineLabel">ETH / USDC</span>
                 </div>
 
                 <div class="compact-field money-field">
@@ -338,27 +367,6 @@
                 </div>
               </section>
 
-              <section class="v3-card">
-                <h2>Уровень комиссии</h2>
-                <div class="fee-tier-grid compact-fees" aria-label="Уровень комиссии V3/V4">
-                  <button class="fee-tier-button" type="button" data-fee-tier="0.01">
-                    <strong>0.01%</strong>
-                    <span>Очень стабильные пары</span>
-                  </button>
-                  <button class="fee-tier-button active" type="button" data-fee-tier="0.05">
-                    <strong>0.05%</strong>
-                    <span>Стабильные пары</span>
-                  </button>
-                  <button class="fee-tier-button" type="button" data-fee-tier="0.3">
-                    <strong>0.3%</strong>
-                    <span>Большинство пар</span>
-                  </button>
-                  <button class="fee-tier-button" type="button" data-fee-tier="1">
-                    <strong>1%</strong>
-                    <span>Волатильные пары</span>
-                  </button>
-                </div>
-              </section>
             </div>
 
             <div class="v3-right">
