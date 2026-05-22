@@ -260,10 +260,159 @@ h2 {
   gap: 18px;
 }
 
+.v3-dashboard {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.35fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.v3-left,
+.v3-right {
+  display: grid;
+  gap: 20px;
+}
+
+.v3-card {
+  display: grid;
+  gap: 16px;
+  border-radius: 8px;
+  background: #101010;
+  border: 1px solid var(--line);
+  box-shadow: 0 18px 48px var(--shadow);
+  padding: 22px 24px;
+}
+
+.v3-card-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.v3-card-title span {
+  border-radius: 6px;
+  background: #2b2729;
+  color: var(--muted);
+  font-weight: 800;
+  padding: 5px 8px;
+}
+
+.v3-card h3 {
+  margin: 12px 0 0;
+  font-size: 20px;
+}
+
+.v3-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.estimated-card > strong {
+  color: var(--good);
+  font-size: clamp(42px, 6vw, 60px);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.mini-metrics,
+.deposit-lines {
+  display: grid;
+  gap: 8px;
+}
+
+.mini-metrics div,
+.deposit-lines div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  border-radius: 999px;
+  background: #1d1b1c;
+  padding: 8px 12px;
+}
+
+.mini-metrics span,
+.deposit-lines span {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.mini-metrics strong,
+.deposit-lines strong {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.compact-field {
+  display: grid;
+  gap: 8px;
+}
+
+.compact-field span {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.compact-field input {
+  width: 100%;
+  min-height: 54px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #111;
+  color: var(--text);
+  outline: 0;
+  padding: 10px 14px;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.compact-field input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(230, 189, 25, 0.18);
+}
+
+.money-field label {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #111;
+  padding: 10px 14px;
+}
+
+.money-field b {
+  color: var(--text);
+  font-size: 30px;
+}
+
+.money-field input {
+  border: 0;
+  box-shadow: none;
+  min-height: 44px;
+  padding: 0;
+  background: transparent;
+  font-size: 36px;
+}
+
+.compact-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
 .fee-tier-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
+}
+
+.compact-fees {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .fee-tier-button {
@@ -306,7 +455,7 @@ h2 {
   display: grid;
   gap: 18px;
   border-radius: 8px;
-  padding: 24px 28px;
+  padding: 22px 24px;
 }
 
 .chart-head {
@@ -677,6 +826,8 @@ h2 {
   .price-grid,
   .three-grid,
   .v3-pair-row,
+  .v3-dashboard,
+  .compact-grid,
   .commission-grid,
   .memory-grid,
   .result-grid {

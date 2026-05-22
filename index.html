@@ -256,155 +256,152 @@
             </button>
           </div>
 
-          <div class="panel inputs-panel">
-            <div class="steps">
-              <section class="step">
-                <div class="step-head">
-                  <span class="step-number">1</span>
+          <div class="v3-dashboard">
+            <div class="v3-left">
+              <section class="v3-card estimated-card">
+                <div class="v3-card-title">
+                  <h2>Оценка комиссий</h2>
+                  <span id="v3FeeTierBadge">0.05%</span>
+                </div>
+                <strong id="v3FeeEstimate">$0.00</strong>
+                <div class="mini-metrics">
                   <div>
-                    <h2>Выберите пару и комиссию</h2>
-                    <p id="v3PositionHint">Например, вы вносите ликвидность в пару ETH/USDC V3/V4. Уровень комиссии влияет на потенциальный доход, но не входит в формулу IL.</p>
+                    <span>За период</span>
+                    <strong id="v3PeriodFeePercent">0.00%</strong>
+                  </div>
+                  <div>
+                    <span>APR</span>
+                    <strong id="v3AprLabel">0.00%</strong>
                   </div>
                 </div>
-
-                <div class="v3-pair-row">
-                  <div class="split-item">
-                    <span>Пара</span>
-                    <strong id="v3PairLabel">ETH / USDC</strong>
-                  </div>
-
-                  <div class="fee-tier-grid" aria-label="Уровень комиссии V3/V4">
-                    <button class="fee-tier-button" type="button" data-fee-tier="0.01">
-                      <strong>0.01%</strong>
-                      <span>Очень стабильные пары</span>
-                    </button>
-                    <button class="fee-tier-button active" type="button" data-fee-tier="0.05">
-                      <strong>0.05%</strong>
-                      <span>Стабильные пары</span>
-                    </button>
-                    <button class="fee-tier-button" type="button" data-fee-tier="0.3">
-                      <strong>0.3%</strong>
-                      <span>Большинство пар</span>
-                    </button>
-                    <button class="fee-tier-button" type="button" data-fee-tier="1">
-                      <strong>1%</strong>
-                      <span>Редкие и волатильные пары</span>
-                    </button>
-                  </div>
-                </div>
+                <p>Комиссии не входят в формулу IL. Это отдельная оценка дохода позиции.</p>
               </section>
 
-              <section class="step">
-                <div class="step-head">
-                  <span class="step-number">2</span>
-                  <div>
-                    <h2>Введите сумму позиции</h2>
-                    <p>Для первого примера оставьте $1000, чтобы легче сравнить результат с V2.</p>
-                  </div>
+              <section class="v3-card">
+                <div class="v3-card-title">
+                  <h2>Позиция</h2>
+                  <span id="v3PairLabel">ETH / USDC</span>
                 </div>
 
-                <label class="field wide-field">
-                  <span>Сумма позиции, $</span>
-                  <input id="v3TotalLiquidity" type="number" min="0" step="any" value="1000" inputmode="decimal">
-                </label>
-              </section>
-
-              <section class="step">
-                <div class="step-head">
-                  <span class="step-number">3</span>
-                  <div>
-                    <h2>Задайте стартовую цену и диапазон</h2>
-                    <p id="v3RangeHint">Ликвидность работает только внутри диапазона. Чем уже диапазон, тем сильнее концентрация и тем быстрее позиция превращается в один актив.</p>
-                  </div>
-                </div>
-
-                <div class="price-grid three-grid">
-                  <label class="field">
-                    <span id="v3CurrentPriceLabel">ETH сейчас, $</span>
-                    <input id="v3CurrentPrice" type="number" min="0" step="any" value="2000" inputmode="decimal">
+                <div class="compact-field money-field">
+                  <span>Сумма депозита</span>
+                  <label>
+                    <b>$</b>
+                    <input id="v3TotalLiquidity" type="number" min="0" step="any" value="1000" inputmode="decimal">
                   </label>
+                </div>
 
-                  <label class="field">
-                    <span>Нижняя граница, $</span>
+                <div class="deposit-lines">
+                  <div>
+                    <span id="v3DepositAssetSymbol">ETH</span>
+                    <strong id="v3DepositAssetLine">0 ETH = $0.00</strong>
+                  </div>
+                  <div>
+                    <span>USDC</span>
+                    <strong id="v3DepositUsdcLine">0 USDC = $0.00</strong>
+                  </div>
+                </div>
+
+                <h3>Диапазон цены</h3>
+                <p id="v3PositionHint">Ликвидность работает только внутри выбранного диапазона.</p>
+
+                <div class="compact-grid">
+                  <label class="compact-field">
+                    <span>Нижняя граница</span>
                     <input id="v3LowerPrice" type="number" min="0" step="any" value="1500" inputmode="decimal">
                   </label>
-
-                  <label class="field">
-                    <span>Верхняя граница, $</span>
+                  <label class="compact-field">
+                    <span>Верхняя граница</span>
                     <input id="v3UpperPrice" type="number" min="0" step="any" value="3000" inputmode="decimal">
                   </label>
                 </div>
-              </section>
 
-              <section class="step">
-                <div class="step-head">
-                  <span class="step-number">4</span>
-                  <div>
-                    <h2>Будущая цена и комиссии</h2>
-                    <p id="v3FutureHint">Если будущая цена выйдет выше диапазона, позиция станет полностью в USDC. Комиссии считаются отдельной оценкой за время активности позиции.</p>
-                  </div>
-                </div>
+                <label class="compact-field">
+                  <span id="v3CurrentPriceLabel">ETH сейчас, $</span>
+                  <input id="v3CurrentPrice" type="number" min="0" step="any" value="2000" inputmode="decimal">
+                </label>
 
-                <div class="price-grid three-grid">
-                  <label class="field">
-                    <span id="v3FuturePriceLabel">ETH потом, $</span>
-                    <input id="v3FuturePrice" type="number" min="0" step="any" value="4000" inputmode="decimal">
-                  </label>
+                <label class="compact-field">
+                  <span id="v3FuturePriceLabel">ETH потом, $</span>
+                  <input id="v3FuturePrice" type="number" min="0" step="any" value="4000" inputmode="decimal">
+                </label>
 
-                  <label class="field">
+                <div class="compact-grid">
+                  <label class="compact-field">
                     <span>Дней активно</span>
                     <input id="v3ActiveDays" type="number" min="0" step="1" value="30" inputmode="numeric">
                   </label>
-
-                  <label class="field">
-                    <span>Доходность годовых, %</span>
+                  <label class="compact-field">
+                    <span>APR комиссий, %</span>
                     <input id="v3AnnualYieldPercent" type="number" min="0" step="any" value="0" inputmode="decimal">
                   </label>
                 </div>
+              </section>
 
-                <div class="price-grid">
-                  <div class="split-item quantity-item">
-                    <span>Статус позиции</span>
-                    <strong id="v3RangeStatus">Выше диапазона</strong>
+              <section class="v3-card">
+                <h2>Уровень комиссии</h2>
+                <div class="fee-tier-grid compact-fees" aria-label="Уровень комиссии V3/V4">
+                  <button class="fee-tier-button" type="button" data-fee-tier="0.01">
+                    <strong>0.01%</strong>
+                    <span>Очень стабильные пары</span>
+                  </button>
+                  <button class="fee-tier-button active" type="button" data-fee-tier="0.05">
+                    <strong>0.05%</strong>
+                    <span>Стабильные пары</span>
+                  </button>
+                  <button class="fee-tier-button" type="button" data-fee-tier="0.3">
+                    <strong>0.3%</strong>
+                    <span>Большинство пар</span>
+                  </button>
+                  <button class="fee-tier-button" type="button" data-fee-tier="1">
+                    <strong>1%</strong>
+                    <span>Волатильные пары</span>
+                  </button>
+                </div>
+              </section>
+            </div>
+
+            <div class="v3-right">
+              <section class="chart-panel">
+                <div class="chart-head">
+                  <div>
+                    <h2>Профиль ликвидности</h2>
+                    <p id="v3ChartSummary">Диапазон, текущая цена и будущая цена показаны на одной шкале.</p>
                   </div>
+                  <span id="v3ChartBadge">Вне диапазона</span>
+                </div>
 
-                  <div class="split-item quantity-item">
-                    <span>Оценка комиссий</span>
-                    <strong id="v3FeeEstimate">$0.00</strong>
+                <div class="range-chart-wrap">
+                  <svg id="v3RangeChart" class="range-chart" viewBox="0 0 900 320" role="img" aria-label="График диапазона концентрированной ликвидности"></svg>
+                </div>
+              </section>
+
+              <section class="chart-panel">
+                <div class="chart-head">
+                  <div>
+                    <h2>Диапазон на цене</h2>
+                    <p>Зеленая зона — ваш диапазон. Желтая линия — текущая цена, зеленый пунктир — будущая.</p>
+                  </div>
+                  <span id="v3RangeStatus">Выше диапазона</span>
+                </div>
+
+                <div class="allocation-chart" aria-label="Состав V3/V4 позиции после изменения цены">
+                  <div class="allocation-bar">
+                    <span id="v3UsdcShare" class="allocation-usdc" style="width: 100%"></span>
+                    <span id="v3AssetShare" class="allocation-asset" style="width: 0%"></span>
+                  </div>
+                  <div class="allocation-labels">
+                    <span id="v3UsdcShareText">USDC: 100%</span>
+                    <span id="v3AssetShareText">ETH: 0%</span>
                   </div>
                 </div>
               </section>
             </div>
           </div>
 
-          <section class="chart-panel">
-            <div class="chart-head">
-              <div>
-                <h2>График позиции V3/V4</h2>
-                <p id="v3ChartSummary">Диапазон, текущая цена и будущая цена показаны на одной шкале.</p>
-              </div>
-              <span id="v3ChartBadge">Вне диапазона</span>
-            </div>
-
-            <div class="range-chart-wrap">
-              <svg id="v3RangeChart" class="range-chart" viewBox="0 0 900 320" role="img" aria-label="График диапазона концентрированной ликвидности"></svg>
-            </div>
-
-            <div class="allocation-chart" aria-label="Состав V3/V4 позиции после изменения цены">
-              <div class="allocation-bar">
-                <span id="v3UsdcShare" class="allocation-usdc" style="width: 100%"></span>
-                <span id="v3AssetShare" class="allocation-asset" style="width: 0%"></span>
-              </div>
-              <div class="allocation-labels">
-                <span id="v3UsdcShareText">USDC: 100%</span>
-                <span id="v3AssetShareText">ETH: 0%</span>
-              </div>
-            </div>
-          </section>
-
           <aside class="explain">
             <h2>Как это работает</h2>
-            <p id="v3ExplainText">В V3/V4 ликвидность размещается не по всей ценовой кривой, а только в выбранном диапазоне. Внутри диапазона позиция постепенно меняет ETH на USDC при росте цены и USDC на ETH при падении.</p>
+            <p id="v3ExplainText">В V3/V4 ликвидность размещается только в выбранном диапазоне. При росте цены позиция постепенно меняет монету на USDC, при падении — USDC на монету.</p>
             <p>Если цена выходит за верхнюю границу, вся позиция оказывается в USDC. Если цена выходит за нижнюю границу, вся позиция оказывается в выбранной монете.</p>
           </aside>
 

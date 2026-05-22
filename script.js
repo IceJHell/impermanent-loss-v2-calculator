@@ -78,6 +78,7 @@ const outputs = {
   exampleMove: document.querySelector("#exampleMove"),
   v3PositionHint: document.querySelector("#v3PositionHint"),
   v3PairLabel: document.querySelector("#v3PairLabel"),
+  v3FeeTierBadge: document.querySelector("#v3FeeTierBadge"),
   v3CurrentPriceLabel: document.querySelector("#v3CurrentPriceLabel"),
   v3FuturePriceLabel: document.querySelector("#v3FuturePriceLabel"),
   v3RangeStatus: document.querySelector("#v3RangeStatus"),
@@ -92,6 +93,11 @@ const outputs = {
   v3HoldSummary: document.querySelector("#v3HoldSummary"),
   v3ImpermanentLoss: document.querySelector("#v3ImpermanentLoss"),
   v3FeeEstimate: document.querySelector("#v3FeeEstimate"),
+  v3PeriodFeePercent: document.querySelector("#v3PeriodFeePercent"),
+  v3AprLabel: document.querySelector("#v3AprLabel"),
+  v3DepositAssetSymbol: document.querySelector("#v3DepositAssetSymbol"),
+  v3DepositAssetLine: document.querySelector("#v3DepositAssetLine"),
+  v3DepositUsdcLine: document.querySelector("#v3DepositUsdcLine"),
   v3FeeValue: document.querySelector("#v3FeeValue"),
   v3LpUsdc: document.querySelector("#v3LpUsdc"),
   v3LpAssetLabel: document.querySelector("#v3LpAssetLabel"),
@@ -370,6 +376,7 @@ function calculateV3() {
   const differenceBeforeFees = lpValueBeforeFees - holdValue;
   const difference = lpValue - holdValue;
   const lossPercent = holdValue ? ((holdValue - lpValueBeforeFees) / holdValue) * 100 : 0;
+  const periodFeePercent = annualYieldPercent * (activeDays / 365);
   const dailyFeeValue = annualYieldPercent ? totalLiquidity * (annualYieldPercent / 100) / 365 : 0;
   const daysToCover =
     dailyFeeValue > 0 && differenceBeforeFees < 0
@@ -377,7 +384,13 @@ function calculateV3() {
       : 0;
 
   outputs.v3RangeStatus.textContent = future.status;
-  outputs.v3FeeEstimate.textContent = `${currency.format(feeValue)} за ${activeDays} дн.`;
+  outputs.v3FeeTierBadge.textContent = `${selectedV3FeeTier}%`;
+  outputs.v3FeeEstimate.textContent = currency.format(feeValue);
+  outputs.v3PeriodFeePercent.textContent = `${periodFeePercent.toFixed(2)}%`;
+  outputs.v3AprLabel.textContent = `${annualYieldPercent.toFixed(2)}%`;
+  outputs.v3DepositAssetSymbol.textContent = activeV3Asset.symbol;
+  outputs.v3DepositAssetLine.textContent = assetValueLine(start.asset, activeV3Asset.symbol, currentPrice);
+  outputs.v3DepositUsdcLine.textContent = usdcValueLine(start.usdc);
   outputs.v3DepositSummary.textContent =
     `Стартовая V3/V4 позиция: ${usdcValueLine(start.usdc)} и ${assetValueLine(start.asset, activeV3Asset.symbol, currentPrice)}. Fee tier: ${selectedV3FeeTier}%.`;
   outputs.v3HoldSummary.textContent =
@@ -489,6 +502,7 @@ function updateV3AssetText() {
   const { symbol, pool } = activeV3Asset;
   outputs.v3PositionHint.textContent = `Например, вы вносите ликвидность в пару ${pool} V3/V4. Уровень комиссии влияет на потенциальный доход, но не входит в формулу IL.`;
   outputs.v3PairLabel.textContent = pool.replace("/", " / ");
+  outputs.v3DepositAssetSymbol.textContent = symbol;
   outputs.v3CurrentPriceLabel.textContent = `${symbol} сейчас, $`;
   outputs.v3FuturePriceLabel.textContent = `${symbol} потом, $`;
   outputs.v3LpAssetLabel.textContent = `Токен B (${symbol})`;
