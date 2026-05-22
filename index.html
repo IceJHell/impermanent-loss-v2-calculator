@@ -262,8 +262,44 @@
                 <div class="step-head">
                   <span class="step-number">1</span>
                   <div>
+                    <h2>Выберите пару и комиссию</h2>
+                    <p id="v3PositionHint">Например, вы вносите ликвидность в пару ETH/USDC V3/V4. Уровень комиссии влияет на потенциальный доход, но не входит в формулу IL.</p>
+                  </div>
+                </div>
+
+                <div class="v3-pair-row">
+                  <div class="split-item">
+                    <span>Пара</span>
+                    <strong id="v3PairLabel">ETH / USDC</strong>
+                  </div>
+
+                  <div class="fee-tier-grid" aria-label="Уровень комиссии V3/V4">
+                    <button class="fee-tier-button" type="button" data-fee-tier="0.01">
+                      <strong>0.01%</strong>
+                      <span>Очень стабильные пары</span>
+                    </button>
+                    <button class="fee-tier-button active" type="button" data-fee-tier="0.05">
+                      <strong>0.05%</strong>
+                      <span>Стабильные пары</span>
+                    </button>
+                    <button class="fee-tier-button" type="button" data-fee-tier="0.3">
+                      <strong>0.3%</strong>
+                      <span>Большинство пар</span>
+                    </button>
+                    <button class="fee-tier-button" type="button" data-fee-tier="1">
+                      <strong>1%</strong>
+                      <span>Редкие и волатильные пары</span>
+                    </button>
+                  </div>
+                </div>
+              </section>
+
+              <section class="step">
+                <div class="step-head">
+                  <span class="step-number">2</span>
+                  <div>
                     <h2>Введите сумму позиции</h2>
-                    <p id="v3PositionHint">Например, вы вносите $1000 в позицию ETH/USDC V3/V4.</p>
+                    <p>Для первого примера оставьте $1000, чтобы легче сравнить результат с V2.</p>
                   </div>
                 </div>
 
@@ -275,7 +311,7 @@
 
               <section class="step">
                 <div class="step-head">
-                  <span class="step-number">2</span>
+                  <span class="step-number">3</span>
                   <div>
                     <h2>Задайте стартовую цену и диапазон</h2>
                     <p id="v3RangeHint">Ликвидность работает только внутри диапазона. Чем уже диапазон, тем сильнее концентрация и тем быстрее позиция превращается в один актив.</p>
@@ -302,22 +338,39 @@
 
               <section class="step">
                 <div class="step-head">
-                  <span class="step-number">3</span>
+                  <span class="step-number">4</span>
                   <div>
-                    <h2>Задайте будущую цену</h2>
-                    <p id="v3FutureHint">Если будущая цена выйдет выше диапазона, позиция станет полностью в USDC. Если ниже диапазона — полностью в монете.</p>
+                    <h2>Будущая цена и комиссии</h2>
+                    <p id="v3FutureHint">Если будущая цена выйдет выше диапазона, позиция станет полностью в USDC. Комиссии считаются отдельной оценкой за время активности позиции.</p>
                   </div>
                 </div>
 
-                <div class="price-grid">
+                <div class="price-grid three-grid">
                   <label class="field">
                     <span id="v3FuturePriceLabel">ETH потом, $</span>
                     <input id="v3FuturePrice" type="number" min="0" step="any" value="4000" inputmode="decimal">
                   </label>
 
+                  <label class="field">
+                    <span>Дней активно</span>
+                    <input id="v3ActiveDays" type="number" min="0" step="1" value="30" inputmode="numeric">
+                  </label>
+
+                  <label class="field">
+                    <span>Доходность годовых, %</span>
+                    <input id="v3AnnualYieldPercent" type="number" min="0" step="any" value="0" inputmode="decimal">
+                  </label>
+                </div>
+
+                <div class="price-grid">
                   <div class="split-item quantity-item">
                     <span>Статус позиции</span>
                     <strong id="v3RangeStatus">Выше диапазона</strong>
+                  </div>
+
+                  <div class="split-item quantity-item">
+                    <span>Оценка комиссий</span>
+                    <strong id="v3FeeEstimate">$0.00</strong>
                   </div>
                 </div>
               </section>
@@ -346,6 +399,10 @@
                     <dd id="v3ImpermanentLoss">0.00%</dd>
                   </div>
                   <div>
+                    <dt>Комиссии</dt>
+                    <dd id="v3FeeValue">$0.00</dd>
+                  </div>
+                  <div>
                     <dt>Токен A (USDC)</dt>
                     <dd id="v3LpUsdc">0.00</dd>
                   </div>
@@ -354,7 +411,7 @@
                     <dd id="v3LpAsset">0.00</dd>
                   </div>
                   <div class="highlight">
-                    <dt>Значение V3/V4 позиции</dt>
+                    <dt>Итог V3/V4 с комиссиями</dt>
                     <dd id="v3LpValue">$0.00</dd>
                   </div>
                 </dl>
@@ -376,6 +433,10 @@
                     <dt>Значение если холдить</dt>
                     <dd id="v3HoldValue">$0.00</dd>
                   </div>
+                  <div>
+                    <dt>Комиссии</dt>
+                    <dd>$0.00</dd>
+                  </div>
                 </dl>
               </article>
             </div>
@@ -383,6 +444,11 @@
             <div class="difference-panel">
               <span>Разница против HODL</span>
               <strong id="v3DifferenceValue">$0.00</strong>
+            </div>
+
+            <div class="difference-panel compact-panel">
+              <span>Дней, чтобы комиссии перекрыли IL</span>
+              <strong id="v3DaysToCover">Недостаточно данных</strong>
             </div>
 
             <p class="result-summary" id="v3ResultSummary">

@@ -253,6 +253,50 @@ h2 {
   font-variant-numeric: tabular-nums;
 }
 
+.v3-pair-row {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.8fr) minmax(0, 2fr);
+  gap: 18px;
+}
+
+.fee-tier-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.fee-tier-button {
+  display: grid;
+  gap: 8px;
+  min-height: 92px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #171414;
+  color: var(--text);
+  cursor: pointer;
+  padding: 14px;
+  text-align: left;
+}
+
+.fee-tier-button strong {
+  font-size: 22px;
+}
+
+.fee-tier-button span {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.fee-tier-button:hover {
+  border-color: var(--accent);
+}
+
+.fee-tier-button.active {
+  border-color: var(--accent);
+  background: #2b260f;
+}
+
 .quantity-item strong {
   color: var(--accent);
 }
@@ -349,6 +393,14 @@ h2 {
   color: #ffffff;
   font-size: 28px;
   font-variant-numeric: tabular-nums;
+}
+
+.compact-panel {
+  margin-top: 10px;
+}
+
+.compact-panel strong {
+  font-size: 22px;
 }
 
 .result-summary {
@@ -493,10 +545,15 @@ h2 {
   .split-grid,
   .price-grid,
   .three-grid,
+  .v3-pair-row,
   .commission-grid,
   .memory-grid,
   .result-grid {
     grid-template-columns: 1fr;
+  }
+
+  .fee-tier-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .protocol-tabs,
