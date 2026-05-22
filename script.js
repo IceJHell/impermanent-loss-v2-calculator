@@ -8,6 +8,10 @@ const assets = {
     defaultPrice: 2000,
     defaultLower: 1500,
     defaultUpper: 3000,
+    uniswapPools: {
+      "0.05": "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+      "0.3": "0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8",
+    },
   },
   bitcoin: {
     id: "bitcoin",
@@ -18,118 +22,120 @@ const assets = {
     defaultPrice: 100000,
     defaultLower: 75000,
     defaultUpper: 150000,
+    uniswapPools: {},
   },
 };
 
 let activeAsset = assets.ethereum;
 let activeV3Asset = assets.ethereum;
-let futurePriceWasEdited = false;
 let selectedMonths = 1;
 let selectedV3FeeTier = 0.05;
 let selectedHistoryDays = 30;
 let v3HistoryPrices = [];
 
+const $ = (selector) => document.querySelector(selector);
+
 const inputs = {
-  totalLiquidity: document.querySelector("#totalLiquidity"),
-  currentAssetPrice: document.querySelector("#currentAssetPrice"),
-  futureAssetPrice: document.querySelector("#futureAssetPrice"),
-  annualYieldPercent: document.querySelector("#annualYieldPercent"),
-  v3TotalLiquidity: document.querySelector("#v3TotalLiquidity"),
-  v3CurrentPrice: document.querySelector("#v3CurrentPrice"),
-  v3LowerPrice: document.querySelector("#v3LowerPrice"),
-  v3UpperPrice: document.querySelector("#v3UpperPrice"),
-  v3FuturePrice: document.querySelector("#v3FuturePrice"),
-  v3ActiveDays: document.querySelector("#v3ActiveDays"),
-  v3AnnualYieldPercent: document.querySelector("#v3AnnualYieldPercent"),
+  totalLiquidity: $("#totalLiquidity"),
+  currentAssetPrice: $("#currentAssetPrice"),
+  futureAssetPrice: $("#futureAssetPrice"),
+  annualYieldPercent: $("#annualYieldPercent"),
+  v3TotalLiquidity: $("#v3TotalLiquidity"),
+  v3CurrentPrice: $("#v3CurrentPrice"),
+  v3LowerPrice: $("#v3LowerPrice"),
+  v3UpperPrice: $("#v3UpperPrice"),
+  v3FuturePrice: $("#v3FuturePrice"),
+  v3ActiveDays: $("#v3ActiveDays"),
+  v3AnnualYieldPercent: $("#v3AnnualYieldPercent"),
 };
 
 const outputs = {
-  positionHint: document.querySelector("#positionHint"),
-  splitHint: document.querySelector("#splitHint"),
-  poolExplanation: document.querySelector("#poolExplanation"),
-  priceStatus: document.querySelector("#priceStatus"),
-  currentPriceTitle: document.querySelector("#currentPriceTitle"),
-  currentPriceLabel: document.querySelector("#currentPriceLabel"),
-  futureHint: document.querySelector("#futureHint"),
-  futurePriceLabel: document.querySelector("#futurePriceLabel"),
-  usdcAllocation: document.querySelector("#usdcAllocation"),
-  assetAllocation: document.querySelector("#assetAllocation"),
-  assetAllocationLabel: document.querySelector("#assetAllocationLabel"),
-  assetAmountLabel: document.querySelector("#assetAmountLabel"),
-  initialAssetAmount: document.querySelector("#initialAssetAmount"),
-  periodFeePercent: document.querySelector("#periodFeePercent"),
-  depositSummary: document.querySelector("#depositSummary"),
-  holdSummary: document.querySelector("#holdSummary"),
-  impermanentLoss: document.querySelector("#impermanentLoss"),
-  holdImpermanentLoss: document.querySelector("#holdImpermanentLoss"),
-  lpTokenA: document.querySelector("#lpTokenA"),
-  lpTokenB: document.querySelector("#lpTokenB"),
-  lpTokenBLabel: document.querySelector("#lpTokenBLabel"),
-  lpValue: document.querySelector("#lpValue"),
-  feeValue: document.querySelector("#feeValue"),
-  lpValueWithFees: document.querySelector("#lpValueWithFees"),
-  holdTokenA: document.querySelector("#holdTokenA"),
-  holdTokenB: document.querySelector("#holdTokenB"),
-  holdTokenBLabel: document.querySelector("#holdTokenBLabel"),
-  holdValue: document.querySelector("#holdValue"),
-  holdFeeValue: document.querySelector("#holdFeeValue"),
-  holdValueWithFees: document.querySelector("#holdValueWithFees"),
-  differenceValue: document.querySelector("#differenceValue"),
-  resultSummary: document.querySelector("#resultSummary"),
-  exampleIntro: document.querySelector("#exampleIntro"),
-  exampleMove: document.querySelector("#exampleMove"),
-  v3PositionHint: document.querySelector("#v3PositionHint"),
-  v3PairLabel: document.querySelector("#v3PairLabel"),
-  v3PairInlineLabel: document.querySelector("#v3PairInlineLabel"),
-  v3FeeTierBadge: document.querySelector("#v3FeeTierBadge"),
-  v3CurrentPriceLabel: document.querySelector("#v3CurrentPriceLabel"),
-  v3FuturePriceLabel: document.querySelector("#v3FuturePriceLabel"),
-  v3RangeStatus: document.querySelector("#v3RangeStatus"),
-  v3DepositSummary: document.querySelector("#v3DepositSummary"),
-  v3ChartSummary: document.querySelector("#v3ChartSummary"),
-  v3ChartBadge: document.querySelector("#v3ChartBadge"),
-  v3RangeChart: document.querySelector("#v3RangeChart"),
-  v3HistoryChart: document.querySelector("#v3HistoryChart"),
-  v3HistoryMin: document.querySelector("#v3HistoryMin"),
-  v3HistoryMax: document.querySelector("#v3HistoryMax"),
-  v3HistoryAvg: document.querySelector("#v3HistoryAvg"),
-  v3UsdcShare: document.querySelector("#v3UsdcShare"),
-  v3AssetShare: document.querySelector("#v3AssetShare"),
-  v3UsdcShareText: document.querySelector("#v3UsdcShareText"),
-  v3AssetShareText: document.querySelector("#v3AssetShareText"),
-  v3HoldSummary: document.querySelector("#v3HoldSummary"),
-  v3ImpermanentLoss: document.querySelector("#v3ImpermanentLoss"),
-  v3FeeEstimate: document.querySelector("#v3FeeEstimate"),
-  v3PeriodFeePercent: document.querySelector("#v3PeriodFeePercent"),
-  v3AprLabel: document.querySelector("#v3AprLabel"),
-  v3DepositAssetSymbol: document.querySelector("#v3DepositAssetSymbol"),
-  v3DepositAssetLine: document.querySelector("#v3DepositAssetLine"),
-  v3DepositUsdcLine: document.querySelector("#v3DepositUsdcLine"),
-  v3FeeValue: document.querySelector("#v3FeeValue"),
-  v3LpUsdc: document.querySelector("#v3LpUsdc"),
-  v3LpAssetLabel: document.querySelector("#v3LpAssetLabel"),
-  v3LpAsset: document.querySelector("#v3LpAsset"),
-  v3LpValue: document.querySelector("#v3LpValue"),
-  v3HoldUsdc: document.querySelector("#v3HoldUsdc"),
-  v3HoldAssetLabel: document.querySelector("#v3HoldAssetLabel"),
-  v3HoldAsset: document.querySelector("#v3HoldAsset"),
-  v3HoldValue: document.querySelector("#v3HoldValue"),
-  v3DifferenceValue: document.querySelector("#v3DifferenceValue"),
-  v3DaysToCover: document.querySelector("#v3DaysToCover"),
-  v3ResultSummary: document.querySelector("#v3ResultSummary"),
-  v3CompareHoldValue: document.querySelector("#v3CompareHoldValue"),
-  v3CompareHoldAssetLabel: document.querySelector("#v3CompareHoldAssetLabel"),
-  v3CompareHoldAsset: document.querySelector("#v3CompareHoldAsset"),
-  v3CompareHoldUsdc: document.querySelector("#v3CompareHoldUsdc"),
-  v3CompareLpValue: document.querySelector("#v3CompareLpValue"),
-  v3CompareLpAssetLabel: document.querySelector("#v3CompareLpAssetLabel"),
-  v3CompareLpAsset: document.querySelector("#v3CompareLpAsset"),
-  v3CompareLpUsdc: document.querySelector("#v3CompareLpUsdc"),
-  v3CompareLpYield: document.querySelector("#v3CompareLpYield"),
-  v3CompareIlValue: document.querySelector("#v3CompareIlValue"),
-  v3CompareIlPercent: document.querySelector("#v3CompareIlPercent"),
-  v3ComparePnlValue: document.querySelector("#v3ComparePnlValue"),
-  v3ComparePnlPercent: document.querySelector("#v3ComparePnlPercent"),
+  positionHint: $("#positionHint"),
+  splitHint: $("#splitHint"),
+  poolExplanation: $("#poolExplanation"),
+  priceStatus: $("#priceStatus"),
+  currentPriceLabel: $("#currentPriceLabel"),
+  futureHint: $("#futureHint"),
+  futurePriceLabel: $("#futurePriceLabel"),
+  usdcAllocation: $("#usdcAllocation"),
+  assetAllocation: $("#assetAllocation"),
+  assetAllocationLabel: $("#assetAllocationLabel"),
+  assetAmountLabel: $("#assetAmountLabel"),
+  initialAssetAmount: $("#initialAssetAmount"),
+  periodFeePercent: $("#periodFeePercent"),
+  depositSummary: $("#depositSummary"),
+  holdSummary: $("#holdSummary"),
+  impermanentLoss: $("#impermanentLoss"),
+  holdImpermanentLoss: $("#holdImpermanentLoss"),
+  lpTokenA: $("#lpTokenA"),
+  lpTokenB: $("#lpTokenB"),
+  lpTokenBLabel: $("#lpTokenBLabel"),
+  lpValue: $("#lpValue"),
+  feeValue: $("#feeValue"),
+  lpValueWithFees: $("#lpValueWithFees"),
+  holdTokenA: $("#holdTokenA"),
+  holdTokenB: $("#holdTokenB"),
+  holdTokenBLabel: $("#holdTokenBLabel"),
+  holdValue: $("#holdValue"),
+  holdFeeValue: $("#holdFeeValue"),
+  holdValueWithFees: $("#holdValueWithFees"),
+  differenceValue: $("#differenceValue"),
+  resultSummary: $("#resultSummary"),
+  v3PositionHint: $("#v3PositionHint"),
+  v3PairLabel: $("#v3PairLabel"),
+  v3FeeTierBadge: $("#v3FeeTierBadge"),
+  v3CurrentPriceLabel: $("#v3CurrentPriceLabel"),
+  v3FuturePriceLabel: $("#v3FuturePriceLabel"),
+  v3RangeStatus: $("#v3RangeStatus"),
+  v3StatusText: $("#v3StatusText"),
+  v3StartComposition: $("#v3StartComposition"),
+  v3DepositSummary: $("#v3DepositSummary"),
+  v3ChartSummary: $("#v3ChartSummary"),
+  v3ChartBadge: $("#v3ChartBadge"),
+  v3RangeChart: $("#v3RangeChart"),
+  v3HistoryChart: $("#v3HistoryChart"),
+  v3HistoryMin: $("#v3HistoryMin"),
+  v3HistoryMax: $("#v3HistoryMax"),
+  v3HistoryAvg: $("#v3HistoryAvg"),
+  v3UsdcShare: $("#v3UsdcShare"),
+  v3AssetShare: $("#v3AssetShare"),
+  v3UsdcShareText: $("#v3UsdcShareText"),
+  v3AssetShareText: $("#v3AssetShareText"),
+  v3HoldSummary: $("#v3HoldSummary"),
+  v3ImpermanentLoss: $("#v3ImpermanentLoss"),
+  v3DepositAssetSymbol: $("#v3DepositAssetSymbol"),
+  v3DepositAssetLine: $("#v3DepositAssetLine"),
+  v3DepositUsdcLine: $("#v3DepositUsdcLine"),
+  v3FeeValue: $("#v3FeeValue"),
+  v3LpUsdc: $("#v3LpUsdc"),
+  v3LpAssetLabel: $("#v3LpAssetLabel"),
+  v3LpAsset: $("#v3LpAsset"),
+  v3LpValue: $("#v3LpValue"),
+  v3HoldUsdc: $("#v3HoldUsdc"),
+  v3HoldAssetLabel: $("#v3HoldAssetLabel"),
+  v3HoldAsset: $("#v3HoldAsset"),
+  v3HoldValue: $("#v3HoldValue"),
+  v3DifferenceValue: $("#v3DifferenceValue"),
+  v3DaysToCover: $("#v3DaysToCover"),
+  v3ResultSummary: $("#v3ResultSummary"),
+  v3CompareHoldValue: $("#v3CompareHoldValue"),
+  v3CompareHoldAssetLabel: $("#v3CompareHoldAssetLabel"),
+  v3CompareHoldAsset: $("#v3CompareHoldAsset"),
+  v3CompareHoldUsdc: $("#v3CompareHoldUsdc"),
+  v3CompareLpValue: $("#v3CompareLpValue"),
+  v3CompareLpAssetLabel: $("#v3CompareLpAssetLabel"),
+  v3CompareLpAsset: $("#v3CompareLpAsset"),
+  v3CompareLpUsdc: $("#v3CompareLpUsdc"),
+  v3CompareLpYield: $("#v3CompareLpYield"),
+  v3CompareIlValue: $("#v3CompareIlValue"),
+  v3CompareIlPercent: $("#v3CompareIlPercent"),
+  v3ComparePnlValue: $("#v3ComparePnlValue"),
+  v3ComparePnlPercent: $("#v3ComparePnlPercent"),
+  v3NeededFees: $("#v3NeededFees"),
+  v3NeededFeePercent: $("#v3NeededFeePercent"),
+  v3RequiredApr: $("#v3RequiredApr"),
+  v3FeeVerdict: $("#v3FeeVerdict"),
+  v3PoolDataStatus: $("#v3PoolDataStatus"),
 };
 
 const currency = new Intl.NumberFormat("en-US", {
@@ -148,10 +154,12 @@ function toPositiveNumber(input) {
 }
 
 function formatPercent(value) {
-  return `${Math.abs(value).toFixed(2)}%`;
+  const sign = value < 0 ? "-" : "";
+  return `${sign}${Math.abs(value).toFixed(2)}%`;
 }
 
 function setTone(element, value) {
+  if (!element) return;
   element.classList.toggle("negative", value < 0);
   element.classList.toggle("positive", value > 0);
 }
@@ -166,137 +174,6 @@ function usdcValueLine(amount) {
 
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
-}
-
-function renderV3Chart({ currentPrice, lowerPrice, upperPrice, futurePrice, status, usdcValue, assetValue }) {
-  const minPrice = Math.min(lowerPrice, currentPrice, futurePrice);
-  const maxPrice = Math.max(upperPrice, currentPrice, futurePrice);
-  const chartMin = Math.max(0, minPrice * 0.85);
-  const chartMax = maxPrice * 1.15;
-  const chartRange = chartMax - chartMin || 1;
-  const left = 70;
-  const right = 830;
-  const bottom = 260;
-  const width = right - left;
-  const rangeWidth = upperPrice - lowerPrice || 1;
-  const totalValue = usdcValue + assetValue;
-  const usdcShare = totalValue ? (usdcValue / totalValue) * 100 : 0;
-  const assetShare = totalValue ? 100 - usdcShare : 0;
-
-  const x = (price) => left + ((price - chartMin) / chartRange) * width;
-  const lowerX = clamp(x(lowerPrice), left, right);
-  const upperX = clamp(x(upperPrice), left, right);
-  const currentX = clamp(x(currentPrice), left, right);
-  const futureX = clamp(x(futurePrice), left, right);
-
-  const bars = Array.from({ length: 76 }, (_, index) => {
-    const barWidth = width / 76;
-    const price = chartMin + chartRange * ((index + 0.5) / 76);
-    const inRange = price >= lowerPrice && price <= upperPrice;
-    const distance = Math.abs(price - currentPrice) / rangeWidth;
-    const height = inRange ? 46 + Math.max(0, 1 - distance * 1.9) * 112 : 18;
-    const barX = left + index * barWidth;
-    const barY = bottom - height;
-
-    return `<rect class="bar${inRange ? "" : " outside"}" x="${barX.toFixed(1)}" y="${barY.toFixed(1)}" width="${Math.max(2, barWidth - 2).toFixed(1)}" height="${height.toFixed(1)}" rx="2"></rect>`;
-  }).join("");
-
-  outputs.v3ChartBadge.textContent = status;
-  outputs.v3ChartSummary.textContent =
-    `Активный диапазон: ${currency.format(lowerPrice)} - ${currency.format(upperPrice)}. Текущая цена: ${currency.format(currentPrice)}, будущая цена: ${currency.format(futurePrice)}.`;
-  outputs.v3UsdcShare.style.width = `${usdcShare.toFixed(2)}%`;
-  outputs.v3AssetShare.style.width = `${assetShare.toFixed(2)}%`;
-  outputs.v3UsdcShareText.textContent = `USDC: ${usdcShare.toFixed(1)}%`;
-  outputs.v3AssetShareText.textContent = `${activeV3Asset.symbol}: ${assetShare.toFixed(1)}%`;
-
-  outputs.v3RangeChart.innerHTML = `
-    <rect x="0" y="0" width="900" height="320" fill="#101010"></rect>
-    <rect class="range-fill" x="${lowerX.toFixed(1)}" y="42" width="${Math.max(0, upperX - lowerX).toFixed(1)}" height="218" rx="8"></rect>
-    ${bars}
-    <line class="axis" x1="${left}" y1="${bottom}" x2="${right}" y2="${bottom}"></line>
-    <line class="boundary-line" x1="${lowerX.toFixed(1)}" y1="38" x2="${lowerX.toFixed(1)}" y2="${bottom}"></line>
-    <line class="boundary-line" x1="${upperX.toFixed(1)}" y1="38" x2="${upperX.toFixed(1)}" y2="${bottom}"></line>
-    <line class="current-line" x1="${currentX.toFixed(1)}" y1="28" x2="${currentX.toFixed(1)}" y2="${bottom + 8}"></line>
-    <line class="future-line" x1="${futureX.toFixed(1)}" y1="28" x2="${futureX.toFixed(1)}" y2="${bottom + 8}"></line>
-    <circle cx="${currentX.toFixed(1)}" cy="32" r="7" fill="#e6bd19"></circle>
-    <circle cx="${futureX.toFixed(1)}" cy="32" r="7" fill="#8fe3b1"></circle>
-    <text x="${left}" y="24">Диапазон ликвидности</text>
-    <text class="muted-text" x="${Math.max(left, lowerX - 34).toFixed(1)}" y="292">MIN ${currency.format(lowerPrice)}</text>
-    <text class="muted-text" x="${Math.min(right - 112, upperX - 34).toFixed(1)}" y="292">MAX ${currency.format(upperPrice)}</text>
-    <text class="muted-text" x="${Math.min(right - 135, currentX + 10).toFixed(1)}" y="52">Сейчас ${currency.format(currentPrice)}</text>
-    <text class="muted-text" x="${Math.min(right - 135, futureX + 10).toFixed(1)}" y="76">Потом ${currency.format(futurePrice)}</text>
-  `;
-}
-
-function renderV3HistoryChart(prices, lowerPrice, upperPrice, currentPrice, futurePrice) {
-  const fallbackPrices = [
-    currentPrice * 0.92,
-    currentPrice * 0.96,
-    currentPrice * 0.9,
-    currentPrice * 1.02,
-    currentPrice * 0.98,
-    currentPrice * 1.05,
-    futurePrice,
-  ];
-  const series = prices.length > 1 ? prices : fallbackPrices;
-  const minSeries = Math.min(...series);
-  const maxSeries = Math.max(...series);
-  const avgSeries = series.reduce((sum, price) => sum + price, 0) / series.length;
-  const minPrice = Math.min(minSeries, lowerPrice, currentPrice, futurePrice);
-  const maxPrice = Math.max(maxSeries, upperPrice, currentPrice, futurePrice);
-  const chartMin = Math.max(0, minPrice * 0.94);
-  const chartMax = maxPrice * 1.06;
-  const chartRange = chartMax - chartMin || 1;
-  const left = 60;
-  const right = 840;
-  const top = 36;
-  const bottom = 250;
-  const width = right - left;
-  const height = bottom - top;
-  const x = (index) => left + (index / Math.max(1, series.length - 1)) * width;
-  const y = (price) => bottom - ((price - chartMin) / chartRange) * height;
-  const lowerY = clamp(y(lowerPrice), top, bottom);
-  const upperY = clamp(y(upperPrice), top, bottom);
-  const currentY = clamp(y(currentPrice), top, bottom);
-  const futureY = clamp(y(futurePrice), top, bottom);
-  const linePoints = series.map((price, index) => `${x(index).toFixed(1)},${y(price).toFixed(1)}`).join(" ");
-  const areaPoints = `${left},${bottom} ${linePoints} ${right},${bottom}`;
-
-  outputs.v3HistoryMin.textContent = `MIN ${currency.format(minSeries)}`;
-  outputs.v3HistoryMax.textContent = `MAX ${currency.format(maxSeries)}`;
-  outputs.v3HistoryAvg.textContent = `AVG ${currency.format(avgSeries)}`;
-  outputs.v3HistoryChart.innerHTML = `
-    <rect x="0" y="0" width="900" height="320" fill="#101010"></rect>
-    <rect class="range-band" x="${left}" y="${Math.min(lowerY, upperY).toFixed(1)}" width="${width}" height="${Math.abs(upperY - lowerY).toFixed(1)}" rx="6"></rect>
-    <polygon class="history-area" points="${areaPoints}"></polygon>
-    <polyline class="history-line" points="${linePoints}"></polyline>
-    <line class="current-line" x1="${left}" y1="${currentY.toFixed(1)}" x2="${right}" y2="${currentY.toFixed(1)}"></line>
-    <line class="future-line" x1="${left}" y1="${futureY.toFixed(1)}" x2="${right}" y2="${futureY.toFixed(1)}"></line>
-    <line class="axis" x1="${left}" y1="${bottom}" x2="${right}" y2="${bottom}"></line>
-    <text x="${left}" y="24">${activeV3Asset.symbol}/USDC · ${selectedHistoryDays === 30 ? "1M" : selectedHistoryDays === 90 ? "3M" : "1Y"}</text>
-    <text class="muted-text" x="${right - 165}" y="${Math.max(top + 18, upperY - 8).toFixed(1)}">верх ${currency.format(upperPrice)}</text>
-    <text class="muted-text" x="${right - 165}" y="${Math.min(bottom - 8, lowerY + 18).toFixed(1)}">низ ${currency.format(lowerPrice)}</text>
-    <text class="muted-text" x="${left + 10}" y="${Math.max(top + 18, currentY - 8).toFixed(1)}">сейчас ${currency.format(currentPrice)}</text>
-    <text class="muted-text" x="${left + 10}" y="${Math.min(bottom - 8, futureY + 20).toFixed(1)}">потом ${currency.format(futurePrice)}</text>
-  `;
-}
-
-async function loadV3History(days = selectedHistoryDays) {
-  selectedHistoryDays = days;
-
-  try {
-    const response = await fetch(historyUrl(activeV3Asset, days), { cache: "no-store" });
-    if (!response.ok) {
-      throw new Error("History request failed");
-    }
-
-    const data = await response.json();
-    v3HistoryPrices = Array.isArray(data.prices) ? data.prices.map((item) => item[1]).filter(Boolean) : [];
-  } catch (error) {
-    v3HistoryPrices = [];
-  } finally {
-    calculateV3();
-  }
 }
 
 function priceUrl(asset) {
@@ -319,12 +196,10 @@ function formatDate(timestamp) {
 
 function updateAssetText() {
   const { symbol, pool, name } = activeAsset;
-
   outputs.positionHint.textContent = `Например, вы вносите $1000 в пул ${pool}.`;
   outputs.splitHint.textContent = `Половина остается в USDC, половина покупает ${symbol} по выбранной цене.`;
   outputs.poolExplanation.textContent =
-    `Когда цена ${symbol} растет, пул V2 автоматически продает часть ${symbol} в USDC, чтобы сохранить баланс 50/50. Поэтому в LP-позиции становится меньше ${symbol} и больше USDC, чем было бы при обычном холде.`;
-  outputs.currentPriceTitle.textContent = `Текущая цена ${symbol}`;
+    `Когда цена ${symbol} растет, пул V2 автоматически продает часть ${symbol} в USDC, чтобы сохранить баланс 50/50. Поэтому в LP-позиции становится меньше ${symbol} и больше USDC, чем было бы при обычном HODL.`;
   outputs.currentPriceLabel.textContent = `${symbol} сейчас, $`;
   outputs.futureHint.textContent = `Для первого примера поставьте цену ${symbol} в 2 раза выше стартовой.`;
   outputs.futurePriceLabel.textContent = `${symbol} потом, $`;
@@ -332,32 +207,20 @@ function updateAssetText() {
   outputs.assetAmountLabel.textContent = `Количество ${symbol} в позиции`;
   outputs.lpTokenBLabel.textContent = `Токен B (${symbol})`;
   outputs.holdTokenBLabel.textContent = `Токен B (${symbol})`;
-  outputs.exampleIntro.textContent =
-    `Если было $1000: $500 остается в USDC, а $500 переводится в ${symbol} по выбранной цене.`;
-  outputs.exampleMove.textContent =
-    `При росте ${name} в 2 раза HODL стоит $1500, а позиция LP V2 стоит $1414.21.`;
 }
 
 function calculate() {
   const totalLiquidity = toPositiveNumber(inputs.totalLiquidity);
   const currentAssetPrice = toPositiveNumber(inputs.currentAssetPrice);
   const futureAssetPrice = toPositiveNumber(inputs.futureAssetPrice);
-  const annualYieldPercent = Math.max(
-    0,
-    Number(inputs.annualYieldPercent.value.replace(",", ".")) || 0
-  );
+  const annualYieldPercent = Math.max(0, Number(inputs.annualYieldPercent.value.replace(",", ".")) || 0);
   const feesPercent = annualYieldPercent * (selectedMonths / 12);
 
-  if (!totalLiquidity || !currentAssetPrice || !futureAssetPrice) {
-    return;
-  }
+  if (!totalLiquidity || !currentAssetPrice || !futureAssetPrice) return;
 
-  const usdcValue = totalLiquidity / 2;
-  const assetValue = totalLiquidity / 2;
-  const initialUsdcAmount = usdcValue;
-  const initialAssetAmount = assetValue / currentAssetPrice;
+  const initialUsdcAmount = totalLiquidity / 2;
+  const initialAssetAmount = (totalLiquidity / 2) / currentAssetPrice;
   const product = initialUsdcAmount * initialAssetAmount;
-
   const lpUsdcAmount = Math.sqrt(product * futureAssetPrice);
   const lpAssetAmount = Math.sqrt(product / futureAssetPrice);
   const lpValue = lpUsdcAmount + lpAssetAmount * futureAssetPrice;
@@ -367,33 +230,29 @@ function calculate() {
   const lpValueWithFees = lpValue + feeValue;
   const differenceWithFees = lpValueWithFees - holdValue;
 
-  outputs.usdcAllocation.textContent = currency.format(usdcValue);
-  outputs.assetAllocation.textContent = currency.format(assetValue);
+  outputs.usdcAllocation.textContent = currency.format(totalLiquidity / 2);
+  outputs.assetAllocation.textContent = currency.format(totalLiquidity / 2);
   outputs.initialAssetAmount.textContent = `${tokenAmount.format(initialAssetAmount)} ${activeAsset.symbol}`;
-  outputs.periodFeePercent.textContent = `${feesPercent.toFixed(2)}%`;
-
+  if (outputs.periodFeePercent) outputs.periodFeePercent.textContent = `${feesPercent.toFixed(2)}%`;
   outputs.depositSummary.textContent =
-    `Если ${currency.format(usdcValue)} в USDC и ${currency.format(assetValue)} в ${activeAsset.symbol} были предоставлены в качестве ликвидности`;
+    `Если ${currency.format(initialUsdcAmount)} в USDC и ${currency.format(totalLiquidity / 2)} в ${activeAsset.symbol} были предоставлены в качестве ликвидности.`;
   outputs.holdSummary.textContent =
-    `Если ${currency.format(usdcValue)} в USDC и ${currency.format(assetValue)} в ${activeAsset.symbol} просто холдить`;
-
+    `Если эти же активы просто держать: ${currency.format(initialUsdcAmount)} в USDC и ${tokenAmount.format(initialAssetAmount)} ${activeAsset.symbol}.`;
   outputs.impermanentLoss.textContent = formatPercent(lossPercent);
   outputs.holdImpermanentLoss.textContent = "0.00%";
-  outputs.lpTokenA.textContent = `${tokenAmount.format(lpUsdcAmount)} USDC = ${currency.format(lpUsdcAmount)}`;
-  outputs.lpTokenB.textContent =
-    `${tokenAmount.format(lpAssetAmount)} ${activeAsset.symbol} = ${currency.format(lpAssetAmount * futureAssetPrice)}`;
+  outputs.lpTokenA.textContent = usdcValueLine(lpUsdcAmount);
+  outputs.lpTokenB.textContent = assetValueLine(lpAssetAmount, activeAsset.symbol, futureAssetPrice);
   outputs.lpValue.textContent = currency.format(lpValue);
   outputs.feeValue.textContent = currency.format(feeValue);
   outputs.lpValueWithFees.textContent = currency.format(lpValueWithFees);
-  outputs.holdTokenA.textContent = `${tokenAmount.format(initialUsdcAmount)} USDC = ${currency.format(initialUsdcAmount)}`;
-  outputs.holdTokenB.textContent =
-    `${tokenAmount.format(initialAssetAmount)} ${activeAsset.symbol} = ${currency.format(initialAssetAmount * futureAssetPrice)}`;
+  outputs.holdTokenA.textContent = usdcValueLine(initialUsdcAmount);
+  outputs.holdTokenB.textContent = assetValueLine(initialAssetAmount, activeAsset.symbol, futureAssetPrice);
   outputs.holdValue.textContent = currency.format(holdValue);
   outputs.holdFeeValue.textContent = currency.format(0);
   outputs.holdValueWithFees.textContent = currency.format(holdValue);
   outputs.differenceValue.textContent = currency.format(differenceWithFees);
   outputs.resultSummary.textContent =
-    `При изменении цены ${activeAsset.symbol} с ${currency.format(currentAssetPrice)} до ${currency.format(futureAssetPrice)} LP-позиция стала бы ${currency.format(lpValue)}, а HODL — ${currency.format(holdValue)}. Разница: ${currency.format(lpValue - holdValue)} до учета комиссий и ${currency.format(differenceWithFees)} с учетом выбранных комиссий.`;
+    `При изменении цены ${activeAsset.symbol} с ${currency.format(currentAssetPrice)} до ${currency.format(futureAssetPrice)} LP-позиция без комиссий стала бы ${currency.format(lpValue)}, а HODL — ${currency.format(holdValue)}. Разница с учетом выбранных комиссий: ${currency.format(differenceWithFees)}.`;
 
   setTone(outputs.differenceValue, differenceWithFees);
   setTone(outputs.lpValueWithFees, differenceWithFees);
@@ -427,6 +286,105 @@ function getV3Amounts(liquidity, price, lowerPrice, upperPrice) {
   };
 }
 
+function statusExplanation(status, symbol) {
+  if (status === "Выше диапазона") {
+    return `Цена выше верхней границы: позиция почти полностью превратилась в USDC. Вы больше не участвуете в росте ${symbol}, пока цена не вернется в диапазон.`;
+  }
+  if (status === "Ниже диапазона") {
+    return `Цена ниже нижней границы: позиция почти полностью превратилась в ${symbol}. Комиссии не копятся, пока цена не вернется в диапазон.`;
+  }
+  return "Цена внутри диапазона: позиция активна, постепенно меняет состав и может собирать комиссии.";
+}
+
+function renderV3Chart({ currentPrice, lowerPrice, upperPrice, futurePrice, status, usdcValue, assetValue }) {
+  const values = [currentPrice, lowerPrice, upperPrice, futurePrice];
+  const min = Math.min(...values) * 0.94;
+  const max = Math.max(...values) * 1.06;
+  const scale = (price) => 80 + ((price - min) / (max - min)) * 740;
+  const currentX = scale(currentPrice);
+  const futureX = scale(futurePrice);
+  const lowerX = scale(lowerPrice);
+  const upperX = scale(upperPrice);
+  const usdcShare = usdcValue + assetValue ? (usdcValue / (usdcValue + assetValue)) * 100 : 0;
+  const assetShare = 100 - usdcShare;
+
+  outputs.v3ChartBadge.textContent = status;
+  outputs.v3ChartSummary.textContent =
+    `Диапазон ${currency.format(lowerPrice)} — ${currency.format(upperPrice)}. Сейчас ${currency.format(currentPrice)}, сценарий ${currency.format(futurePrice)}.`;
+  outputs.v3UsdcShare.style.width = `${usdcShare.toFixed(2)}%`;
+  outputs.v3AssetShare.style.width = `${assetShare.toFixed(2)}%`;
+  outputs.v3UsdcShareText.textContent = `USDC: ${usdcShare.toFixed(1)}%`;
+  outputs.v3AssetShareText.textContent = `${activeV3Asset.symbol}: ${assetShare.toFixed(1)}%`;
+
+  outputs.v3RangeChart.innerHTML = `
+    <rect x="60" y="56" width="780" height="190" rx="18" class="range-fill"></rect>
+    <line x1="80" y1="246" x2="820" y2="246" class="axis"></line>
+    <rect x="${lowerX}" y="82" width="${Math.max(4, upperX - lowerX)}" height="132" rx="12" class="range-band"></rect>
+    <line x1="${lowerX}" y1="72" x2="${lowerX}" y2="246" class="boundary-line"></line>
+    <line x1="${upperX}" y1="72" x2="${upperX}" y2="246" class="boundary-line"></line>
+    <line x1="${currentX}" y1="54" x2="${currentX}" y2="246" class="current-line"></line>
+    <line x1="${futureX}" y1="54" x2="${futureX}" y2="246" class="future-line"></line>
+    <circle cx="${futureX}" cy="120" r="9" fill="#8fe3b1"></circle>
+    <text x="${lowerX}" y="270" text-anchor="middle">${currency.format(lowerPrice)}</text>
+    <text x="${upperX}" y="270" text-anchor="middle">${currency.format(upperPrice)}</text>
+    <text x="${currentX}" y="36" text-anchor="middle">сейчас</text>
+    <text x="${futureX}" y="36" text-anchor="middle">потом</text>
+    <text x="450" y="155" text-anchor="middle">${status}</text>
+  `;
+}
+
+function renderV3HistoryChart(prices, lowerPrice, upperPrice, currentPrice, futurePrice) {
+  if (!prices.length) {
+    outputs.v3HistoryMin.textContent = "MIN —";
+    outputs.v3HistoryMax.textContent = "MAX —";
+    outputs.v3HistoryAvg.textContent = "AVG —";
+    outputs.v3HistoryChart.innerHTML = `<text x="450" y="165" text-anchor="middle">История цены не загрузилась. Расчет работает вручную.</text>`;
+    return;
+  }
+
+  const series = prices.slice(-selectedHistoryDays);
+  const minSeries = Math.min(...series);
+  const maxSeries = Math.max(...series);
+  const avgSeries = series.reduce((sum, price) => sum + price, 0) / series.length;
+  const min = Math.min(minSeries, lowerPrice, currentPrice, futurePrice) * 0.96;
+  const max = Math.max(maxSeries, upperPrice, currentPrice, futurePrice) * 1.04;
+  const x = (index) => 60 + (index / Math.max(1, series.length - 1)) * 780;
+  const y = (price) => 260 - ((price - min) / (max - min)) * 210;
+  const points = series.map((price, index) => `${x(index)},${y(price)}`).join(" ");
+  const areaPoints = `60,260 ${points} 840,260`;
+  const lowerY = y(lowerPrice);
+  const upperY = y(upperPrice);
+  const currentY = y(currentPrice);
+  const futureY = y(futurePrice);
+
+  outputs.v3HistoryMin.textContent = `MIN ${currency.format(minSeries)}`;
+  outputs.v3HistoryMax.textContent = `MAX ${currency.format(maxSeries)}`;
+  outputs.v3HistoryAvg.textContent = `AVG ${currency.format(avgSeries)}`;
+  outputs.v3HistoryChart.innerHTML = `
+    <rect x="60" y="${Math.min(lowerY, upperY)}" width="780" height="${Math.abs(lowerY - upperY)}" class="range-band"></rect>
+    <polygon class="history-area" points="${areaPoints}"></polygon>
+    <polyline class="history-line" points="${points}"></polyline>
+    <line x1="60" y1="${currentY}" x2="840" y2="${currentY}" class="current-line"></line>
+    <line x1="60" y1="${futureY}" x2="840" y2="${futureY}" class="future-line"></line>
+    <line x1="60" y1="260" x2="840" y2="260" class="axis"></line>
+    <text x="76" y="${currentY - 8}">сейчас ${currency.format(currentPrice)}</text>
+    <text x="76" y="${futureY - 8}">сценарий ${currency.format(futurePrice)}</text>
+  `;
+}
+
+async function loadV3History(days) {
+  try {
+    const response = await fetch(historyUrl(activeV3Asset, days), { cache: "no-store" });
+    if (!response.ok) throw new Error("History request failed");
+    const data = await response.json();
+    v3HistoryPrices = Array.isArray(data.prices) ? data.prices.map((item) => item[1]).filter(Boolean) : [];
+  } catch (error) {
+    v3HistoryPrices = [];
+  } finally {
+    calculateV3();
+  }
+}
+
 function calculateV3() {
   const totalLiquidity = toPositiveNumber(inputs.v3TotalLiquidity);
   const currentPrice = toPositiveNumber(inputs.v3CurrentPrice);
@@ -434,18 +392,14 @@ function calculateV3() {
   const upperPrice = toPositiveNumber(inputs.v3UpperPrice);
   const futurePrice = toPositiveNumber(inputs.v3FuturePrice);
   const activeDays = Math.max(0, Number(inputs.v3ActiveDays.value.replace(",", ".")) || 0);
-  const annualYieldPercent = Math.max(
-    0,
-    Number(inputs.v3AnnualYieldPercent.value.replace(",", ".")) || 0
-  );
+  const annualYieldPercent = Math.max(0, Number(inputs.v3AnnualYieldPercent.value.replace(",", ".")) || 0);
 
-  if (!totalLiquidity || !currentPrice || !lowerPrice || !upperPrice || !futurePrice) {
-    return;
-  }
+  if (!totalLiquidity || !currentPrice || !lowerPrice || !upperPrice || !futurePrice) return;
 
   if (lowerPrice >= upperPrice) {
     outputs.v3RangeStatus.textContent = "Проверьте диапазон";
-    outputs.v3ResultSummary.textContent = "Нижняя граница должна быть меньше верхней.";
+    outputs.v3StatusText.textContent = "Нижняя граница должна быть меньше верхней.";
+    outputs.v3ResultSummary.textContent = "Исправьте диапазон, чтобы расчет стал корректным.";
     outputs.v3ChartBadge.textContent = "Ошибка диапазона";
     return;
   }
@@ -454,10 +408,10 @@ function calculateV3() {
   const unitValue = unitStart.usdc + unitStart.asset * currentPrice;
 
   if (!unitValue) {
-    outputs.v3RangeStatus.textContent = "Цена вне диапазона";
-    outputs.v3ResultSummary.textContent =
-      "Для первого расчета поставьте стартовую цену внутри выбранного диапазона.";
-    outputs.v3ChartBadge.textContent = "Цена вне диапазона";
+    outputs.v3RangeStatus.textContent = "Старт вне диапазона";
+    outputs.v3StatusText.textContent = "Для учебного расчета поставьте текущую цену внутри диапазона.";
+    outputs.v3ResultSummary.textContent = "Стартовая цена должна быть внутри выбранного диапазона.";
+    outputs.v3ChartBadge.textContent = "Старт вне диапазона";
     return;
   }
 
@@ -466,30 +420,29 @@ function calculateV3() {
   const future = getV3Amounts(liquidity, futurePrice, lowerPrice, upperPrice);
   const lpValueBeforeFees = future.usdc + future.asset * futurePrice;
   const holdValue = start.usdc + start.asset * futurePrice;
+  const neededFees = Math.max(0, holdValue - lpValueBeforeFees);
+  const neededFeePercent = totalLiquidity ? (neededFees / totalLiquidity) * 100 : 0;
+  const requiredApr = activeDays > 0 ? (neededFees / totalLiquidity) * (365 / activeDays) * 100 : 0;
   const feeValue = totalLiquidity * (annualYieldPercent / 100) * (activeDays / 365);
   const lpValue = lpValueBeforeFees + feeValue;
   const differenceBeforeFees = lpValueBeforeFees - holdValue;
   const difference = lpValue - holdValue;
   const lossPercent = holdValue ? ((holdValue - lpValueBeforeFees) / holdValue) * 100 : 0;
-  const periodFeePercent = annualYieldPercent * (activeDays / 365);
   const dailyFeeValue = annualYieldPercent ? totalLiquidity * (annualYieldPercent / 100) / 365 : 0;
-  const daysToCover =
-    dailyFeeValue > 0 && differenceBeforeFees < 0
-      ? Math.ceil(Math.abs(differenceBeforeFees) / dailyFeeValue)
-      : 0;
+  const daysToCover = dailyFeeValue > 0 && neededFees > 0 ? Math.ceil(neededFees / dailyFeeValue) : 0;
 
   outputs.v3RangeStatus.textContent = future.status;
+  outputs.v3StatusText.textContent = statusExplanation(future.status, activeV3Asset.symbol);
   outputs.v3FeeTierBadge.textContent = `${selectedV3FeeTier}%`;
-  outputs.v3FeeEstimate.textContent = currency.format(feeValue);
-  outputs.v3PeriodFeePercent.textContent = `${periodFeePercent.toFixed(2)}%`;
-  outputs.v3AprLabel.textContent = `${annualYieldPercent.toFixed(2)}%`;
   outputs.v3DepositAssetSymbol.textContent = activeV3Asset.symbol;
   outputs.v3DepositAssetLine.textContent = assetValueLine(start.asset, activeV3Asset.symbol, currentPrice);
   outputs.v3DepositUsdcLine.textContent = usdcValueLine(start.usdc);
+  outputs.v3StartComposition.textContent =
+    `На входе в V3/V4: ${usdcValueLine(start.usdc)} и ${assetValueLine(start.asset, activeV3Asset.symbol, currentPrice)}.`;
   outputs.v3DepositSummary.textContent =
-    `Стартовая V3/V4 позиция: ${usdcValueLine(start.usdc)} и ${assetValueLine(start.asset, activeV3Asset.symbol, currentPrice)}. Fee tier: ${selectedV3FeeTier}%.`;
+    `Будущий состав V3/V4: ${usdcValueLine(future.usdc)} и ${assetValueLine(future.asset, activeV3Asset.symbol, futurePrice)}.`;
   outputs.v3HoldSummary.textContent =
-    `Если эти же активы просто холдить после входа в диапазон.`;
+    `HODL сохраняет стартовые активы: ${usdcValueLine(start.usdc)} и ${tokenAmount.format(start.asset)} ${activeV3Asset.symbol}.`;
   outputs.v3ImpermanentLoss.textContent = formatPercent(lossPercent);
   outputs.v3FeeValue.textContent = currency.format(feeValue);
   outputs.v3LpUsdc.textContent = usdcValueLine(future.usdc);
@@ -511,15 +464,19 @@ function calculateV3() {
   outputs.v3CompareIlValue.textContent = currency.format(differenceBeforeFees);
   outputs.v3CompareIlPercent.textContent = formatPercent(lossPercent);
   outputs.v3ComparePnlValue.textContent = currency.format(difference);
-  outputs.v3ComparePnlPercent.textContent = holdValue ? `${((difference / holdValue) * 100).toFixed(2)}%` : "0.00%";
+  outputs.v3ComparePnlPercent.textContent = holdValue ? formatPercent((difference / holdValue) * 100) : "0.00%";
+  outputs.v3NeededFees.textContent = currency.format(neededFees);
+  outputs.v3NeededFeePercent.textContent = `${neededFeePercent.toFixed(2)}%`;
+  outputs.v3RequiredApr.textContent = activeDays > 0 ? `${requiredApr.toFixed(2)}%` : "—";
+  outputs.v3FeeVerdict.textContent =
+    neededFees === 0
+      ? "В этом сценарии V3/V4 до комиссий не хуже HODL. Любые комиссии будут плюсом."
+      : `Чтобы V3/V4 сравнялся с HODL, нужно заработать ${currency.format(neededFees)} комиссий за ${activeDays || "выбранный срок"} дней. При вашем прогнозе комиссий итог: ${currency.format(difference)} против HODL.`;
   outputs.v3DaysToCover.textContent =
-    daysToCover > 0
-      ? `${daysToCover} дн.`
-      : differenceBeforeFees >= 0
-        ? "IL уже перекрыт"
-        : "Укажите доходность";
+    daysToCover > 0 ? `${daysToCover} дн.` : neededFees === 0 ? "Комиссии не нужны" : "Укажите APR комиссий";
   outputs.v3ResultSummary.textContent =
-    `При изменении цены ${activeV3Asset.symbol} с ${currency.format(currentPrice)} до ${currency.format(futurePrice)} концентрированная позиция до комиссий стала бы ${currency.format(lpValueBeforeFees)}, а HODL стартовых активов — ${currency.format(holdValue)}. С учетом выбранных комиссий итог V3/V4: ${currency.format(lpValue)}. Разница против HODL: ${currency.format(difference)}.`;
+    `Без комиссий V3/V4: ${currency.format(lpValueBeforeFees)}, HODL: ${currency.format(holdValue)}. Нужно комиссий для безубыточности: ${currency.format(neededFees)}. Итог с вашим прогнозом комиссий: ${currency.format(lpValue)}.`;
+
   renderV3Chart({
     currentPrice,
     lowerPrice,
@@ -536,6 +493,8 @@ function calculateV3() {
   setTone(outputs.v3CompareIlPercent, -lossPercent);
   setTone(outputs.v3ComparePnlValue, difference);
   setTone(outputs.v3ComparePnlPercent, difference);
+  setTone(outputs.v3NeededFees, -neededFees);
+  setTone(outputs.v3FeeVerdict, difference);
 }
 
 async function loadAssetPrice() {
@@ -544,26 +503,13 @@ async function loadAssetPrice() {
 
   try {
     const response = await fetch(priceUrl(asset), { cache: "no-store" });
-    if (!response.ok) {
-      throw new Error("Price request failed");
-    }
-
+    if (!response.ok) throw new Error("Price request failed");
     const data = await response.json();
     const price = data?.[asset.id]?.usd;
-    if (!price) {
-      throw new Error("Asset price is missing");
-    }
-
-    if (asset !== activeAsset) {
-      return;
-    }
-
-    const updatedAt = data[asset.id].last_updated_at
-      ? formatDate(data[asset.id].last_updated_at)
-      : "сейчас";
-
+    if (!price || asset !== activeAsset) return;
+    const updatedAt = data[asset.id].last_updated_at ? formatDate(data[asset.id].last_updated_at) : "сейчас";
     outputs.priceStatus.textContent =
-      `Подсказка: на ${updatedAt} цена ${asset.name} была ${currency.format(price)}. Первый расчет лучше начать с округленных цифр для более наглядного понимания.`;
+      `Подсказка: на ${updatedAt} цена ${asset.name} была ${currency.format(price)}. Первый расчет лучше начать с округленных цифр.`;
   } catch (error) {
     outputs.priceStatus.textContent =
       `Не удалось загрузить цену ${asset.name}. Можно ввести текущую цену вручную.`;
@@ -572,16 +518,52 @@ async function loadAssetPrice() {
   }
 }
 
+async function tryLoadUniswapData() {
+  const poolId = activeV3Asset.uniswapPools[String(selectedV3FeeTier)];
+  if (!poolId) {
+    outputs.v3PoolDataStatus.textContent =
+      `Для пары ${activeV3Asset.pool} и fee tier ${selectedV3FeeTier}% в статической версии нет надежного публичного pool id. Расчет остается ручным.`;
+    return;
+  }
+
+  outputs.v3PoolDataStatus.textContent = "Пробую получить данные Uniswap из публичного subgraph...";
+
+  try {
+    const response = await fetch("https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        query: `{
+          pool(id: "${poolId}") {
+            feeTier
+            totalValueLockedUSD
+            volumeUSD
+            txCount
+          }
+        }`,
+      }),
+    });
+
+    if (!response.ok) throw new Error("Subgraph request failed");
+    const data = await response.json();
+    const pool = data?.data?.pool;
+    if (!pool) throw new Error("Pool is missing");
+
+    outputs.v3PoolDataStatus.textContent =
+      `Uniswap ${activeV3Asset.pool} ${selectedV3FeeTier}%: TVL ${currency.format(Number(pool.totalValueLockedUSD || 0))}, volume all-time ${currency.format(Number(pool.volumeUSD || 0))}, tx ${Number(pool.txCount || 0).toLocaleString("ru-RU")}. Для точной доходности все равно нужна ваша доля ликвидности и объем за период.`;
+  } catch (error) {
+    outputs.v3PoolDataStatus.textContent =
+      "Публичный Uniswap subgraph сейчас недоступен из статической страницы. Безопасный вариант для реальных pool-data: backend/proxy с THE_GRAPH_API_KEY в переменных окружения, не во фронтенде.";
+  }
+}
+
 function selectAsset(assetId) {
   activeAsset = assets[assetId];
-  futurePriceWasEdited = false;
-
   document.querySelectorAll(".asset-tab").forEach((tab) => {
     const isActive = tab.dataset.asset === assetId;
     tab.classList.toggle("active", isActive);
     tab.setAttribute("aria-selected", String(isActive));
   });
-
   inputs.currentAssetPrice.value = activeAsset.defaultPrice;
   inputs.futureAssetPrice.value = activeAsset.defaultPrice * 2;
   updateAssetText();
@@ -591,31 +573,20 @@ function selectAsset(assetId) {
 
 function selectProtocol(protocol) {
   const isV3 = protocol === "v3";
-
   document.querySelectorAll(".protocol-tab").forEach((tab) => {
     const isActive = tab.dataset.protocol === protocol;
     tab.classList.toggle("active", isActive);
     tab.setAttribute("aria-selected", String(isActive));
   });
-
-  document.querySelectorAll(".v2-view").forEach((element) => {
-    element.classList.toggle("hidden", isV3);
-  });
-
-  document.querySelectorAll(".v3-view").forEach((element) => {
-    element.classList.toggle("hidden", !isV3);
-  });
-
-  if (isV3) {
-    calculateV3();
-  }
+  document.querySelectorAll(".v2-view").forEach((element) => element.classList.toggle("hidden", isV3));
+  document.querySelectorAll(".v3-view").forEach((element) => element.classList.toggle("hidden", !isV3));
+  if (isV3) calculateV3();
 }
 
 function updateV3AssetText() {
   const { symbol, pool } = activeV3Asset;
-  outputs.v3PositionHint.textContent = `Ликвидность работает только внутри выбранного диапазона.`;
+  outputs.v3PositionHint.textContent = "Стартовая цена должна быть внутри диапазона, иначе позиция уже на входе будет в одном токене.";
   outputs.v3PairLabel.textContent = pool.replace("/", " / ");
-  outputs.v3PairInlineLabel.textContent = pool.replace("/", " / ");
   outputs.v3DepositAssetSymbol.textContent = symbol;
   outputs.v3CurrentPriceLabel.textContent = `${symbol} сейчас, $`;
   outputs.v3FuturePriceLabel.textContent = `${symbol} потом, $`;
@@ -625,13 +596,11 @@ function updateV3AssetText() {
 
 function selectV3Asset(assetId) {
   activeV3Asset = assets[assetId];
-
   document.querySelectorAll(".v3-asset-tab").forEach((tab) => {
     const isActive = tab.dataset.asset === assetId;
     tab.classList.toggle("active", isActive);
     tab.setAttribute("aria-selected", String(isActive));
   });
-
   inputs.v3CurrentPrice.value = activeV3Asset.defaultPrice;
   inputs.v3LowerPrice.value = activeV3Asset.defaultLower;
   inputs.v3UpperPrice.value = activeV3Asset.defaultUpper;
@@ -656,11 +625,7 @@ document.querySelectorAll(".v3-asset-tab").forEach((tab) => {
 document.querySelectorAll(".fee-tier-button").forEach((button) => {
   button.addEventListener("click", () => {
     selectedV3FeeTier = Number(button.dataset.feeTier);
-
-    document.querySelectorAll(".fee-tier-button").forEach((item) => {
-      item.classList.toggle("active", item === button);
-    });
-
+    document.querySelectorAll(".fee-tier-button").forEach((item) => item.classList.toggle("active", item === button));
     calculateV3();
   });
 });
@@ -668,23 +633,25 @@ document.querySelectorAll(".fee-tier-button").forEach((button) => {
 document.querySelectorAll(".history-button").forEach((button) => {
   button.addEventListener("click", () => {
     selectedHistoryDays = Number(button.dataset.days);
-
-    document.querySelectorAll(".history-button").forEach((item) => {
-      item.classList.toggle("active", item === button);
-    });
-
+    document.querySelectorAll(".history-button").forEach((item) => item.classList.toggle("active", item === button));
     loadV3History(selectedHistoryDays);
   });
 });
 
-inputs.futureAssetPrice.addEventListener("input", () => {
-  futurePriceWasEdited = true;
-  calculate();
+document.querySelectorAll(".duration-button").forEach((button) => {
+  button.addEventListener("click", () => {
+    selectedMonths = Number(button.dataset.months);
+    document.querySelectorAll(".duration-button").forEach((item) => item.classList.toggle("active", item === button));
+    calculate();
+  });
 });
 
-[inputs.totalLiquidity, inputs.currentAssetPrice, inputs.annualYieldPercent].forEach((input) => {
-  input.addEventListener("input", calculate);
-});
+[
+  inputs.totalLiquidity,
+  inputs.currentAssetPrice,
+  inputs.futureAssetPrice,
+  inputs.annualYieldPercent,
+].forEach((input) => input.addEventListener("input", calculate));
 
 [
   inputs.v3TotalLiquidity,
@@ -694,21 +661,9 @@ inputs.futureAssetPrice.addEventListener("input", () => {
   inputs.v3FuturePrice,
   inputs.v3ActiveDays,
   inputs.v3AnnualYieldPercent,
-].forEach((input) => {
-  input.addEventListener("input", calculateV3);
-});
+].forEach((input) => input.addEventListener("input", calculateV3));
 
-document.querySelectorAll(".duration-button").forEach((button) => {
-  button.addEventListener("click", () => {
-    selectedMonths = Number(button.dataset.months);
-
-    document.querySelectorAll(".duration-button").forEach((item) => {
-      item.classList.toggle("active", item === button);
-    });
-
-    calculate();
-  });
-});
+$("#v3PoolDataButton")?.addEventListener("click", tryLoadUniswapData);
 
 updateAssetText();
 updateV3AssetText();

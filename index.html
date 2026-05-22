@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Непостоянные потери V2 на примере биткоина и эфира</title>
+    <title>Непостоянные потери V2, V3 и V4 на примере биткоина и эфира</title>
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
@@ -15,372 +15,271 @@
 
       <section class="calculator" aria-label="Калькулятор непостоянных потерь">
         <div class="protocol-tabs" role="tablist" aria-label="Выбор версии пула">
-          <button class="protocol-tab active" type="button" role="tab" aria-selected="true" data-protocol="v2">
-            V2
-          </button>
-          <button class="protocol-tab" type="button" role="tab" aria-selected="false" data-protocol="v3">
-            V3/V4
-          </button>
+          <button class="protocol-tab active" type="button" role="tab" aria-selected="true" data-protocol="v2">V2</button>
+          <button class="protocol-tab" type="button" role="tab" aria-selected="false" data-protocol="v3">V3/V4</button>
         </div>
 
-        <div class="asset-tabs v2-view" role="tablist" aria-label="Выбор монеты">
-          <button class="asset-tab active" type="button" role="tab" aria-selected="true" data-asset="ethereum">
-            Эфир
-          </button>
-          <button class="asset-tab" type="button" role="tab" aria-selected="false" data-asset="bitcoin">
-            Bitcoin
-          </button>
-        </div>
+        <section class="v2-view">
+          <div class="asset-tabs" role="tablist" aria-label="Выбор монеты для V2">
+            <button class="asset-tab active" type="button" role="tab" aria-selected="true" data-asset="ethereum">Эфир</button>
+            <button class="asset-tab" type="button" role="tab" aria-selected="false" data-asset="bitcoin">Bitcoin</button>
+          </div>
 
-        <div class="panel inputs-panel v2-view">
-          <div class="steps">
-            <section class="step">
-              <div class="step-head">
-                <span class="step-number">1</span>
-                <div>
-                  <h2>Введите сумму позиции</h2>
-                  <p id="positionHint">Например, вы вносите $1000 в пул ETH/USDC.</p>
+          <section class="panel inputs-panel">
+            <div class="steps">
+              <article class="step">
+                <div class="step-head">
+                  <span class="step-number">1</span>
+                  <div>
+                    <h2>Введите сумму позиции</h2>
+                    <p id="positionHint">Например, вы вносите $1000 в пул ETH/USDC.</p>
+                  </div>
                 </div>
-              </div>
-
-              <label class="field wide-field">
-                <span>Сумма позиции, $</span>
-                <input id="totalLiquidity" type="number" min="0" step="any" value="1000" inputmode="decimal">
-              </label>
-            </section>
-
-            <section class="step">
-              <div class="step-head">
-                <span class="step-number">2</span>
-                <div>
-                  <h2>V2 распределяет 50/50</h2>
-                  <p id="splitHint">Половина остается в USDC, половина покупает ETH по выбранной цене.</p>
-                </div>
-              </div>
-
-              <div class="split-grid">
-                <div class="split-item">
-                  <span>Токен A (USDC)</span>
-                  <strong id="usdcAllocation">$500.00</strong>
-                </div>
-                <div class="split-item">
-                  <span id="assetAllocationLabel">Токен B (ETH)</span>
-                  <strong id="assetAllocation">$500.00</strong>
-                </div>
-              </div>
-            </section>
-
-            <section class="step">
-              <div class="step-head">
-                <span class="step-number">3</span>
-                <div>
-                  <h2 id="currentPriceTitle">Текущая цена ETH</h2>
-                  <p id="priceStatus">Подсказка загрузится ниже. Первый расчет лучше начать с округленных цифр для более наглядного понимания.</p>
-                </div>
-              </div>
-
-              <div class="price-grid">
-                <label class="field">
-                  <span id="currentPriceLabel">ETH сейчас, $</span>
-                  <input id="currentAssetPrice" type="number" min="0" step="any" value="2000" inputmode="decimal">
+                <label class="field wide-field">
+                  <span>Сумма, $</span>
+                  <input id="totalLiquidity" type="number" min="0" step="any" value="1000" inputmode="decimal">
                 </label>
+              </article>
 
+              <article class="step">
+                <div class="step-head">
+                  <span class="step-number">2</span>
+                  <div>
+                    <h2>V2 делит позицию 50/50</h2>
+                    <p id="splitHint">Половина остается в USDC, половина покупает ETH по выбранной цене.</p>
+                  </div>
+                </div>
+                <div class="split-grid">
+                  <div class="split-item">
+                    <span>Токен A (USDC)</span>
+                    <strong id="usdcAllocation">$500.00</strong>
+                  </div>
+                  <div class="split-item">
+                    <span id="assetAllocationLabel">Токен B (ETH)</span>
+                    <strong id="assetAllocation">$500.00</strong>
+                  </div>
+                </div>
                 <div class="split-item quantity-item">
                   <span id="assetAmountLabel">Количество ETH в позиции</span>
-                  <strong id="initialAssetAmount">0.166667 ETH</strong>
+                  <strong id="initialAssetAmount">0.25 ETH</strong>
                 </div>
-              </div>
-            </section>
+              </article>
 
-            <section class="step">
-              <div class="step-head">
-                <span class="step-number">4</span>
-                <div>
-                  <h2>Задайте будущую цену</h2>
-                  <p id="futureHint">Для первого примера поставьте цену в 2 раза выше стартовой.</p>
+              <article class="step">
+                <div class="step-head">
+                  <span class="step-number">3</span>
+                  <div>
+                    <h2>Задайте стартовую и будущую цену</h2>
+                    <p id="futureHint">Для первого примера поставьте цену в 2 раза выше стартовой.</p>
+                  </div>
                 </div>
-              </div>
+                <div class="price-grid">
+                  <label class="field wide-field">
+                    <span id="currentPriceLabel">ETH сейчас, $</span>
+                    <input id="currentAssetPrice" type="number" min="0" step="any" value="2000" inputmode="decimal">
+                  </label>
+                  <label class="field wide-field">
+                    <span id="futurePriceLabel">ETH потом, $</span>
+                    <input id="futureAssetPrice" type="number" min="0" step="any" value="4000" inputmode="decimal">
+                  </label>
+                </div>
+                <p class="price-status" id="priceStatus">Подсказка: первый расчет лучше начать с округленных цифр.</p>
+              </article>
 
-              <label class="field wide-field">
-                <span id="futurePriceLabel">ETH потом, $</span>
-                <input id="futureAssetPrice" type="number" min="0" step="any" value="4000" inputmode="decimal">
-              </label>
-            </section>
-
-          </div>
-        </div>
-
-        <aside class="explain v2-view">
-          <h2>Пример</h2>
-          <p id="exampleIntro">Если было $1000: $500 остается в USDC, а $500 переводится в ETH по выбранной цене.</p>
-          <p id="exampleMove">При росте ETH в 2 раза HODL стоит $1500, а позиция LP V2 стоит $1414.21.</p>
-          <p>Потери относительно HODL: 5.72%. Комиссии в V2 могут уменьшить или перекрыть эту разницу, но это отдельный слой расчета.</p>
-        </aside>
-
-        <section class="commission-panel v2-view">
-          <div>
-            <h2>Комиссии</h2>
-            <p>В формуле непостоянных потерь комиссии не считаются. Но в V2 они накапливаются внутри LP-позиции, поэтому ниже можно добавить оценку дохода от комиссий.</p>
-          </div>
-
-          <div class="duration-group" aria-label="Срок работы позиции">
-            <button class="duration-button active" type="button" data-months="1">1 месяц</button>
-            <button class="duration-button" type="button" data-months="3">3 месяца</button>
-            <button class="duration-button" type="button" data-months="6">6 месяцев</button>
-            <button class="duration-button" type="button" data-months="9">9 месяцев</button>
-            <button class="duration-button" type="button" data-months="12">12 месяцев</button>
-          </div>
-
-          <div class="commission-grid">
-            <label class="field">
-              <span>Доходность за год, %</span>
-              <input id="annualYieldPercent" type="number" min="0" step="any" value="0" inputmode="decimal">
-            </label>
-
-            <div class="split-item quantity-item">
-              <span>Комиссии за период</span>
-              <strong id="periodFeePercent">0.00%</strong>
+              <article class="step">
+                <div class="step-head">
+                  <span class="step-number">4</span>
+                  <div>
+                    <h2>Комиссии V2</h2>
+                    <p>Для понимания механики V2 лучше сначала оставить комиссии равными нулю. Потом можно проверить, как доходность меняет итог.</p>
+                  </div>
+                </div>
+                <div class="duration-buttons" aria-label="Срок работы позиции">
+                  <button class="duration-button active" type="button" data-months="1">1 месяц</button>
+                  <button class="duration-button" type="button" data-months="3">3 месяца</button>
+                  <button class="duration-button" type="button" data-months="6">6 месяцев</button>
+                  <button class="duration-button" type="button" data-months="9">9 месяцев</button>
+                  <button class="duration-button" type="button" data-months="12">12 месяцев</button>
+                </div>
+                <label class="field wide-field">
+                  <span>APR комиссий, %</span>
+                  <input id="annualYieldPercent" type="number" min="0" step="any" value="0" inputmode="decimal">
+                </label>
+                <p class="price-status">Комиссии не входят в саму формулу impermanent loss. В расчетах ниже они добавляются отдельной строкой.</p>
+              </article>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <section class="results v2-view" aria-live="polite">
-          <h2>Результаты</h2>
-          <p class="pool-explanation" id="poolExplanation">
-            Когда цена ETH растет, пул V2 автоматически продает часть ETH в USDC, чтобы сохранить баланс 50/50. Поэтому в LP-позиции становится меньше ETH и больше USDC, чем было бы при обычном холде.
-          </p>
+          <aside class="explain">
+            <h2>Что происходит с пулом, когда цена растет</h2>
+            <p id="poolExplanation">Когда цена ETH растет, пул V2 автоматически продает часть ETH в USDC, чтобы сохранить баланс 50/50.</p>
+          </aside>
 
-          <div class="result-grid">
-            <article class="result-card">
-              <p class="card-note" id="depositSummary"></p>
+          <section class="results" aria-live="polite">
+            <h2>Результаты V2</h2>
+            <p class="pool-explanation">Сравниваем два сценария: предоставить ликвидность в V2 или просто держать стартовые USDC и монету.</p>
+            <div class="result-grid">
+              <article class="result-card">
+                <p class="card-note" id="depositSummary"></p>
+                <dl class="metrics">
+                  <div><dt>Impermanent Loss</dt><dd id="impermanentLoss">0.00%</dd></div>
+                  <div><dt>Комиссии</dt><dd id="feeValue">$0.00</dd></div>
+                  <div><dt>Токен A (USDC)</dt><dd id="lpTokenA">0.00</dd></div>
+                  <div><dt id="lpTokenBLabel">Токен B (ETH)</dt><dd id="lpTokenB">0.00</dd></div>
+                  <div><dt>Значение LP без комиссий</dt><dd id="lpValue">$0.00</dd></div>
+                  <div class="highlight"><dt>Итог LP с комиссиями</dt><dd id="lpValueWithFees">$0.00</dd></div>
+                </dl>
+              </article>
 
-              <dl class="metrics">
-                <div>
-                  <dt>Impermanent Loss</dt>
-                  <dd id="impermanentLoss">0.00%</dd>
-                </div>
-                <div>
-                  <dt>Токен A (USDC)</dt>
-                  <dd id="lpTokenA">0.00</dd>
-                </div>
-                <div>
-                  <dt id="lpTokenBLabel">Токен B (ETH)</dt>
-                  <dd id="lpTokenB">0.00</dd>
-                </div>
-                <div>
-                  <dt>Значение если предоставить ликвидность</dt>
-                  <dd id="lpValue">$0.00</dd>
-                </div>
-                <div>
-                  <dt>Комиссии</dt>
-                  <dd id="feeValue">$0.00</dd>
-                </div>
-                <div class="highlight">
-                  <dt>Итог LP с комиссиями</dt>
-                  <dd id="lpValueWithFees">$0.00</dd>
-                </div>
-              </dl>
-            </article>
-
-            <article class="result-card">
-              <p class="card-note" id="holdSummary"></p>
-
-              <dl class="metrics">
-                <div>
-                  <dt>Impermanent Loss</dt>
-                  <dd id="holdImpermanentLoss">0.00%</dd>
-                </div>
-                <div>
-                  <dt>Токен A (USDC)</dt>
-                  <dd id="holdTokenA">0.00</dd>
-                </div>
-                <div>
-                  <dt id="holdTokenBLabel">Токен B (ETH)</dt>
-                  <dd id="holdTokenB">0.00</dd>
-                </div>
-                <div>
-                  <dt>Значение если холдить</dt>
-                  <dd id="holdValue">$0.00</dd>
-                </div>
-                <div>
-                  <dt>Комиссии</dt>
-                  <dd id="holdFeeValue">$0.00</dd>
-                </div>
-                <div class="highlight">
-                  <dt>Итог HODL с комиссиями</dt>
-                  <dd id="holdValueWithFees">$0.00</dd>
-                </div>
-              </dl>
-            </article>
-          </div>
-
-          <div class="difference-panel">
-            <span>Разница против HODL</span>
-            <strong id="differenceValue">$0.00</strong>
-          </div>
-
-          <p class="result-summary" id="resultSummary">
-            При росте ETH с $2000 до $4000 LP-позиция стала бы $1414.21, а HODL — $1500.00. Разница: -$85.79 до учета комиссий.
-          </p>
-        </section>
-
-        <section class="note-panel v2-view">
-          <h2>Что важно помнить</h2>
-          <p>Непостоянные потери не означают, что позиция обязательно ушла в минус. Это разница между результатом LP и результатом обычного HODL.</p>
-
-          <div class="memory-grid">
-            <div>
-              <span>Рост в 1.5 раза</span>
-              <strong>2.02%</strong>
+              <article class="result-card">
+                <p class="card-note" id="holdSummary"></p>
+                <dl class="metrics">
+                  <div><dt>Impermanent Loss</dt><dd id="holdImpermanentLoss">0.00%</dd></div>
+                  <div><dt>Комиссии</dt><dd id="holdFeeValue">$0.00</dd></div>
+                  <div><dt>Токен A (USDC)</dt><dd id="holdTokenA">0.00</dd></div>
+                  <div><dt id="holdTokenBLabel">Токен B (ETH)</dt><dd id="holdTokenB">0.00</dd></div>
+                  <div class="highlight"><dt>Значение если холдить</dt><dd id="holdValue">$0.00</dd></div>
+                  <div><dt>Итог HODL с комиссиями</dt><dd id="holdValueWithFees">$0.00</dd></div>
+                </dl>
+              </article>
             </div>
-            <div>
-              <span>Рост в 2 раза</span>
-              <strong>5.72%</strong>
-            </div>
-            <div>
-              <span>Рост в 2.5 раза</span>
-              <strong>9.65%</strong>
-            </div>
-          </div>
 
-          <p class="recovery-note">Если цена снова вернулась к стартовой, непостоянных потерь нет. Вы просто заработали свои комиссии.</p>
+            <div class="difference-panel">
+              <span>Разница против HODL</span>
+              <strong id="differenceValue">$0.00</strong>
+            </div>
+            <p class="result-summary" id="resultSummary"></p>
+          </section>
+
+          <section class="note-panel">
+            <h2>Памятка по V2</h2>
+            <div class="loss-cheatsheet">
+              <div><span>Рост в 1.5 раза</span><strong>2.02%</strong></div>
+              <div><span>Рост в 2 раза</span><strong>5.72%</strong></div>
+              <div><span>Рост в 2.5 раза</span><strong>9.65%</strong></div>
+            </div>
+            <p class="recovery-note">Если цена снова вернулась к стартовой, непостоянных потерь нет. Вы просто заработали свои комиссии.</p>
+          </section>
         </section>
 
         <section class="v3-view hidden" aria-label="Калькулятор концентрированной ликвидности V3/V4">
           <div class="asset-tabs" role="tablist" aria-label="Выбор монеты для V3/V4">
-            <button class="v3-asset-tab active" type="button" role="tab" aria-selected="true" data-asset="ethereum">
-              Эфир
-            </button>
-            <button class="v3-asset-tab" type="button" role="tab" aria-selected="false" data-asset="bitcoin">
-              Bitcoin
-            </button>
+            <button class="v3-asset-tab active" type="button" role="tab" aria-selected="true" data-asset="ethereum">Эфир</button>
+            <button class="v3-asset-tab" type="button" role="tab" aria-selected="false" data-asset="bitcoin">Bitcoin</button>
           </div>
 
-          <section class="v3-setup-panel">
-            <div class="v3-card-title">
-              <div>
-                <h2>Выберите пул и комиссию</h2>
-                <p>Комиссия пула влияет на потенциальный доход от сделок, но сама формула IL считается только от изменения цены и диапазона.</p>
-              </div>
-              <span id="v3PairLabel">ETH / USDC</span>
+          <section class="v3-intro">
+            <div>
+              <p class="eyebrow">V3/V4 сценарий</p>
+              <h2>Сначала задаем позицию и диапазон, потом смотрим, сколько комиссий нужно против HODL</h2>
             </div>
-
-            <div class="fee-tier-grid" aria-label="Уровень комиссии V3/V4">
-              <button class="fee-tier-button" type="button" data-fee-tier="0.01">
-                <strong>0.01%</strong>
-                <span>Очень стабильные пары</span>
-              </button>
-              <button class="fee-tier-button active" type="button" data-fee-tier="0.05">
-                <strong>0.05%</strong>
-                <span>Стабильные пары</span>
-              </button>
-              <button class="fee-tier-button" type="button" data-fee-tier="0.3">
-                <strong>0.3%</strong>
-                <span>Большинство пар</span>
-              </button>
-              <button class="fee-tier-button" type="button" data-fee-tier="1">
-                <strong>1%</strong>
-                <span>Волатильные пары</span>
-              </button>
-            </div>
+            <p>Главная мысль: V3/V4 не просто “дает больше комиссий”. Позиция внутри диапазона постепенно меняет активы, а за пределами диапазона превращается в один токен. Поэтому сначала считаем результат без комиссий, затем отдельно считаем, какие комиссии должны перекрыть отставание от HODL.</p>
           </section>
 
-          <div class="v3-dashboard">
+          <div class="v3-flow">
+            <section class="v3-card v3-step-card">
+              <div class="step-head">
+                <span class="step-number">1</span>
+                <div>
+                  <h2>Выберите пул и fee tier</h2>
+                  <p>Fee tier влияет на потенциальные комиссии, но не меняет формулу IL. Реальный доход зависит от объема торгов, вашей доли ликвидности и времени внутри диапазона.</p>
+                </div>
+              </div>
+              <div class="v3-card-title">
+                <span id="v3PairLabel">ETH / USDC</span>
+                <span id="v3FeeTierBadge">0.05%</span>
+              </div>
+              <div class="fee-tier-grid" aria-label="Уровень комиссии V3/V4">
+                <button class="fee-tier-button" type="button" data-fee-tier="0.01"><strong>0.01%</strong><span>Очень стабильные пары</span></button>
+                <button class="fee-tier-button active" type="button" data-fee-tier="0.05"><strong>0.05%</strong><span>Стабильные пары</span></button>
+                <button class="fee-tier-button" type="button" data-fee-tier="0.3"><strong>0.3%</strong><span>Большинство пар</span></button>
+                <button class="fee-tier-button" type="button" data-fee-tier="1"><strong>1%</strong><span>Волатильные пары</span></button>
+              </div>
+            </section>
+
+            <section class="v3-card v3-step-card">
+              <div class="step-head">
+                <span class="step-number">2</span>
+                <div>
+                  <h2>Введите позицию и рабочий диапазон</h2>
+                  <p id="v3PositionHint">Стартовая цена должна быть внутри диапазона, иначе позиция уже на входе будет в одном токене.</p>
+                </div>
+              </div>
+              <div class="compact-field money-field">
+                <span>Сумма депозита</span>
+                <label><b>$</b><input id="v3TotalLiquidity" type="number" min="0" step="any" value="1000" inputmode="decimal"></label>
+              </div>
+              <div class="compact-grid">
+                <label class="compact-field"><span>Нижняя граница, $</span><input id="v3LowerPrice" type="number" min="0" step="any" value="1500" inputmode="decimal"></label>
+                <label class="compact-field"><span>Верхняя граница, $</span><input id="v3UpperPrice" type="number" min="0" step="any" value="3000" inputmode="decimal"></label>
+              </div>
+              <label class="compact-field"><span id="v3CurrentPriceLabel">ETH сейчас, $</span><input id="v3CurrentPrice" type="number" min="0" step="any" value="2000" inputmode="decimal"></label>
+              <div class="deposit-lines">
+                <div><span id="v3DepositAssetSymbol">ETH</span><strong id="v3DepositAssetLine">0 ETH = $0.00</strong></div>
+                <div><span>USDC</span><strong id="v3DepositUsdcLine">0 USDC = $0.00</strong></div>
+              </div>
+              <p class="step-output" id="v3StartComposition">Стартовый состав появится после ввода диапазона.</p>
+            </section>
+
+            <section class="v3-card v3-step-card">
+              <div class="step-head">
+                <span class="step-number">3</span>
+                <div>
+                  <h2>Задайте будущую цену</h2>
+                  <p>Смотрим, останется ли цена внутри диапазона или позиция превратится полностью в USDC/монету.</p>
+                </div>
+              </div>
+              <label class="compact-field"><span id="v3FuturePriceLabel">ETH потом, $</span><input id="v3FuturePrice" type="number" min="0" step="any" value="4000" inputmode="decimal"></label>
+              <div class="status-card">
+                <span>Статус будущей цены</span>
+                <strong id="v3RangeStatus">Вне диапазона</strong>
+                <p id="v3StatusText">Позиция будет пересчитана после ввода цены.</p>
+              </div>
+            </section>
+
+            <section class="v3-card v3-step-card">
+              <div class="step-head">
+                <span class="step-number">4</span>
+                <div>
+                  <h2>Проверьте комиссии против HODL</h2>
+                  <p>Сначала считается V3/V4 без комиссий. Потом показывается, сколько комиссий нужно заработать, чтобы не проиграть обычному HODL.</p>
+                </div>
+              </div>
+              <div class="compact-grid">
+                <label class="compact-field"><span>Дней позиция активна</span><input id="v3ActiveDays" type="number" min="0" step="1" value="30" inputmode="numeric"></label>
+                <label class="compact-field"><span>Ваш прогноз комиссий, APR %</span><input id="v3AnnualYieldPercent" type="number" min="0" step="any" value="0" inputmode="decimal"></label>
+              </div>
+              <div class="break-even-grid">
+                <div><span>Нужно комиссий</span><strong id="v3NeededFees">$0.00</strong></div>
+                <div><span>Это от депозита</span><strong id="v3NeededFeePercent">0.00%</strong></div>
+                <div><span>Нужный APR</span><strong id="v3RequiredApr">0.00%</strong></div>
+              </div>
+              <p class="fee-verdict" id="v3FeeVerdict">Если прогноз комиссий 0%, видно чистое отставание V3/V4 от HODL.</p>
+            </section>
+          </div>
+
+          <section class="v3-dashboard">
             <div class="v3-left">
-              <section class="v3-card estimated-card">
-                <div class="v3-card-title">
-                  <h2>Оценка комиссий</h2>
-                  <span id="v3FeeTierBadge">0.05%</span>
-                </div>
-                <strong id="v3FeeEstimate">$0.00</strong>
-                <div class="mini-metrics">
-                  <div>
-                    <span>За период</span>
-                    <strong id="v3PeriodFeePercent">0.00%</strong>
-                  </div>
-                  <div>
-                    <span>APR</span>
-                    <strong id="v3AprLabel">0.00%</strong>
-                  </div>
-                </div>
-                <p>Комиссии не входят в формулу IL. Это отдельная оценка дохода позиции.</p>
-              </section>
-
-              <section class="v3-card">
-                <div class="v3-card-title">
-                  <h2>Позиция</h2>
-                  <span id="v3PairInlineLabel">ETH / USDC</span>
-                </div>
-
-                <div class="compact-field money-field">
-                  <span>Сумма депозита</span>
-                  <label>
-                    <b>$</b>
-                    <input id="v3TotalLiquidity" type="number" min="0" step="any" value="1000" inputmode="decimal">
-                  </label>
-                </div>
-
-                <div class="deposit-lines">
-                  <div>
-                    <span id="v3DepositAssetSymbol">ETH</span>
-                    <strong id="v3DepositAssetLine">0 ETH = $0.00</strong>
-                  </div>
-                  <div>
-                    <span>USDC</span>
-                    <strong id="v3DepositUsdcLine">0 USDC = $0.00</strong>
-                  </div>
-                </div>
-
-                <h3>Диапазон цены</h3>
-                <p id="v3PositionHint">Ликвидность работает только внутри выбранного диапазона.</p>
-
-                <div class="compact-grid">
-                  <label class="compact-field">
-                    <span>Нижняя граница</span>
-                    <input id="v3LowerPrice" type="number" min="0" step="any" value="1500" inputmode="decimal">
-                  </label>
-                  <label class="compact-field">
-                    <span>Верхняя граница</span>
-                    <input id="v3UpperPrice" type="number" min="0" step="any" value="3000" inputmode="decimal">
-                  </label>
-                </div>
-
-                <label class="compact-field">
-                  <span id="v3CurrentPriceLabel">ETH сейчас, $</span>
-                  <input id="v3CurrentPrice" type="number" min="0" step="any" value="2000" inputmode="decimal">
-                </label>
-
-                <label class="compact-field">
-                  <span id="v3FuturePriceLabel">ETH потом, $</span>
-                  <input id="v3FuturePrice" type="number" min="0" step="any" value="4000" inputmode="decimal">
-                </label>
-
-                <div class="compact-grid">
-                  <label class="compact-field">
-                    <span>Дней активно</span>
-                    <input id="v3ActiveDays" type="number" min="0" step="1" value="30" inputmode="numeric">
-                  </label>
-                  <label class="compact-field">
-                    <span>APR комиссий, %</span>
-                    <input id="v3AnnualYieldPercent" type="number" min="0" step="any" value="0" inputmode="decimal">
-                  </label>
-                </div>
-              </section>
-
-            </div>
-
-            <div class="v3-right">
               <section class="chart-panel">
                 <div class="chart-head">
                   <div>
-                    <h2>Профиль ликвидности</h2>
+                    <h2>Профиль диапазона</h2>
                     <p id="v3ChartSummary">Диапазон, текущая цена и будущая цена показаны на одной шкале.</p>
                   </div>
                   <span id="v3ChartBadge">Вне диапазона</span>
                 </div>
-
                 <div class="range-chart-wrap">
                   <svg id="v3RangeChart" class="range-chart" viewBox="0 0 900 320" role="img" aria-label="График диапазона концентрированной ликвидности"></svg>
+                </div>
+                <div class="allocation-chart" aria-label="Состав V3/V4 позиции после изменения цены">
+                  <div class="allocation-bar">
+                    <span id="v3UsdcShare" class="allocation-usdc" style="width: 100%"></span>
+                    <span id="v3AssetShare" class="allocation-asset" style="width: 0%"></span>
+                  </div>
+                  <div class="allocation-labels">
+                    <span id="v3UsdcShareText">USDC: 100%</span>
+                    <span id="v3AssetShareText">ETH: 0%</span>
+                  </div>
                 </div>
               </section>
 
@@ -396,168 +295,107 @@
                     <button class="history-button" type="button" data-days="365">1Y</button>
                   </div>
                 </div>
-
                 <div class="range-chart-wrap">
                   <svg id="v3HistoryChart" class="range-chart history-chart" viewBox="0 0 900 320" role="img" aria-label="История цены и диапазон V3/V4"></svg>
                 </div>
-
                 <div class="history-stats">
                   <span id="v3HistoryMin">MIN —</span>
                   <span id="v3HistoryMax">MAX —</span>
                   <span id="v3HistoryAvg">AVG —</span>
                 </div>
-
-                <div class="allocation-chart" aria-label="Состав V3/V4 позиции после изменения цены">
-                  <div class="allocation-bar">
-                    <span id="v3UsdcShare" class="allocation-usdc" style="width: 100%"></span>
-                    <span id="v3AssetShare" class="allocation-asset" style="width: 0%"></span>
-                  </div>
-                  <div class="allocation-labels">
-                    <span id="v3UsdcShareText">USDC: 100%</span>
-                    <span id="v3AssetShareText">ETH: 0%</span>
-                  </div>
-                </div>
               </section>
             </div>
-          </div>
+
+            <div class="v3-right">
+              <section class="results v3-results" aria-live="polite">
+                <h2>Сравнение V3/V4 с HODL</h2>
+                <p class="pool-explanation" id="v3PoolExplanation">Сравниваем стартовый набор активов: просто держать его или положить в концентрированный диапазон.</p>
+
+                <div class="strategy-compare">
+                  <article class="strategy-card hodl-card">
+                    <div class="strategy-head">
+                      <span>Strategy A: HODL</span>
+                      <strong id="v3CompareHoldValue">$0.00</strong>
+                    </div>
+                    <dl>
+                      <div><dt id="v3CompareHoldAssetLabel">ETH</dt><dd id="v3CompareHoldAsset">0.00</dd></div>
+                      <div><dt>USDC</dt><dd id="v3CompareHoldUsdc">0.00</dd></div>
+                      <div><dt>Комиссии</dt><dd>$0.00</dd></div>
+                    </dl>
+                  </article>
+
+                  <article class="strategy-card lp-card">
+                    <div class="strategy-head">
+                      <span>Strategy B: Uniswap V3/V4</span>
+                      <strong id="v3CompareLpValue">$0.00</strong>
+                    </div>
+                    <dl>
+                      <div><dt id="v3CompareLpAssetLabel">ETH</dt><dd id="v3CompareLpAsset">0.00</dd></div>
+                      <div><dt>USDC</dt><dd id="v3CompareLpUsdc">0.00</dd></div>
+                      <div><dt>Комиссии по прогнозу</dt><dd id="v3CompareLpYield">$0.00</dd></div>
+                    </dl>
+                  </article>
+                </div>
+
+                <div class="il-strip">
+                  <div><span>Impermanent Loss до комиссий</span><strong id="v3CompareIlValue">$0.00</strong><em id="v3CompareIlPercent">0.00%</em></div>
+                  <div><span>PnL после комиссий</span><strong id="v3ComparePnlValue">$0.00</strong><em id="v3ComparePnlPercent">0.00%</em></div>
+                </div>
+
+                <div class="result-grid">
+                  <article class="result-card">
+                    <p class="card-note" id="v3DepositSummary"></p>
+                    <dl class="metrics">
+                      <div><dt>IL против HODL</dt><dd id="v3ImpermanentLoss">0.00%</dd></div>
+                      <div><dt>Комиссии</dt><dd id="v3FeeValue">$0.00</dd></div>
+                      <div><dt>Токен A (USDC)</dt><dd id="v3LpUsdc">0.00</dd></div>
+                      <div><dt id="v3LpAssetLabel">Токен B (ETH)</dt><dd id="v3LpAsset">0.00</dd></div>
+                      <div class="highlight"><dt>Итог V3/V4 с комиссиями</dt><dd id="v3LpValue">$0.00</dd></div>
+                    </dl>
+                  </article>
+
+                  <article class="result-card">
+                    <p class="card-note" id="v3HoldSummary"></p>
+                    <dl class="metrics">
+                      <div><dt>Токен A (USDC)</dt><dd id="v3HoldUsdc">0.00</dd></div>
+                      <div><dt id="v3HoldAssetLabel">Токен B (ETH)</dt><dd id="v3HoldAsset">0.00</dd></div>
+                      <div><dt>Комиссии</dt><dd>$0.00</dd></div>
+                      <div class="highlight"><dt>Значение если холдить</dt><dd id="v3HoldValue">$0.00</dd></div>
+                    </dl>
+                  </article>
+                </div>
+
+                <div class="difference-panel">
+                  <span>Разница против HODL</span>
+                  <strong id="v3DifferenceValue">$0.00</strong>
+                </div>
+                <div class="difference-panel compact-panel">
+                  <span>Сколько дней нужно при вашем APR</span>
+                  <strong id="v3DaysToCover">Недостаточно данных</strong>
+                </div>
+                <p class="result-summary" id="v3ResultSummary">Введите диапазон и будущую цену, чтобы увидеть результат.</p>
+              </section>
+
+              <section class="v3-card uniswap-card">
+                <div class="v3-card-title">
+                  <div>
+                    <h2>Данные Uniswap</h2>
+                    <p>В статической странице нельзя безопасно хранить ключ The Graph. Поэтому кнопка пробует публичный endpoint, а при ошибке оставляет ручной расчет.</p>
+                  </div>
+                  <span>optional</span>
+                </div>
+                <button class="secondary-action" id="v3PoolDataButton" type="button">Проверить публичный subgraph</button>
+                <p class="step-output" id="v3PoolDataStatus">Для ETH/USDC есть попытка получить TVL и volume из публичного subgraph. Для надежного подключения нужен backend/proxy.</p>
+              </section>
+            </div>
+          </section>
 
           <aside class="explain">
-            <h2>Как это работает</h2>
-            <p id="v3ExplainText">В V3/V4 ликвидность размещается только в выбранном диапазоне. При росте цены позиция постепенно меняет монету на USDC, при падении — USDC на монету.</p>
-            <p>Если цена выходит за верхнюю границу, вся позиция оказывается в USDC. Если цена выходит за нижнюю границу, вся позиция оказывается в выбранной монете.</p>
+            <h2>Логика V3/V4 простыми словами</h2>
+            <p id="v3ExplainText">Пока цена внутри диапазона, позиция постепенно балансируется между USDC и выбранной монетой. Если цена уходит выше верхней границы, позиция становится почти полностью USDC. Если ниже нижней границы — почти полностью монетой.</p>
+            <p>Комиссии могут перекрыть это отставание, но их нужно считать отдельно: они зависят не от самой формулы IL, а от реального торгового объема, fee tier, вашей доли ликвидности и времени внутри диапазона.</p>
           </aside>
-
-          <section class="results" aria-live="polite">
-            <h2>Результаты V3/V4</h2>
-            <p class="pool-explanation" id="v3PoolExplanation">
-              Концентрированная ликвидность может дать больше комиссий внутри диапазона, но риск превращения позиции в один актив выше, чем в V2.
-            </p>
-
-            <div class="strategy-compare">
-              <article class="strategy-card hodl-card">
-                <div class="strategy-head">
-                  <span>Strategy A: HODL</span>
-                  <strong id="v3CompareHoldValue">$0.00</strong>
-                </div>
-                <dl>
-                  <div>
-                    <dt id="v3CompareHoldAssetLabel">ETH</dt>
-                    <dd id="v3CompareHoldAsset">0.00</dd>
-                  </div>
-                  <div>
-                    <dt>USDC</dt>
-                    <dd id="v3CompareHoldUsdc">0.00</dd>
-                  </div>
-                  <div>
-                    <dt>Комиссии</dt>
-                    <dd>$0.00</dd>
-                  </div>
-                </dl>
-              </article>
-
-              <article class="strategy-card lp-card">
-                <div class="strategy-head">
-                  <span>Strategy B: Uniswap V3/V4</span>
-                  <strong id="v3CompareLpValue">$0.00</strong>
-                </div>
-                <dl>
-                  <div>
-                    <dt id="v3CompareLpAssetLabel">ETH</dt>
-                    <dd id="v3CompareLpAsset">0.00</dd>
-                  </div>
-                  <div>
-                    <dt>USDC</dt>
-                    <dd id="v3CompareLpUsdc">0.00</dd>
-                  </div>
-                  <div>
-                    <dt>LP Yield</dt>
-                    <dd id="v3CompareLpYield">$0.00</dd>
-                  </div>
-                </dl>
-              </article>
-            </div>
-
-            <div class="il-strip">
-              <div>
-                <span>Impermanent Loss</span>
-                <strong id="v3CompareIlValue">$0.00</strong>
-                <em id="v3CompareIlPercent">0.00%</em>
-              </div>
-              <div>
-                <span>PnL</span>
-                <strong id="v3ComparePnlValue">$0.00</strong>
-                <em id="v3ComparePnlPercent">0.00%</em>
-              </div>
-            </div>
-
-            <div class="result-grid">
-              <article class="result-card">
-                <p class="card-note" id="v3DepositSummary"></p>
-
-                <dl class="metrics">
-                  <div>
-                    <dt>IL против HODL</dt>
-                    <dd id="v3ImpermanentLoss">0.00%</dd>
-                  </div>
-                  <div>
-                    <dt>Комиссии</dt>
-                    <dd id="v3FeeValue">$0.00</dd>
-                  </div>
-                  <div>
-                    <dt>Токен A (USDC)</dt>
-                    <dd id="v3LpUsdc">0.00</dd>
-                  </div>
-                  <div>
-                    <dt id="v3LpAssetLabel">Токен B (ETH)</dt>
-                    <dd id="v3LpAsset">0.00</dd>
-                  </div>
-                  <div class="highlight">
-                    <dt>Итог V3/V4 с комиссиями</dt>
-                    <dd id="v3LpValue">$0.00</dd>
-                  </div>
-                </dl>
-              </article>
-
-              <article class="result-card">
-                <p class="card-note" id="v3HoldSummary"></p>
-
-                <dl class="metrics">
-                  <div>
-                    <dt>Токен A (USDC)</dt>
-                    <dd id="v3HoldUsdc">0.00</dd>
-                  </div>
-                  <div>
-                    <dt id="v3HoldAssetLabel">Токен B (ETH)</dt>
-                    <dd id="v3HoldAsset">0.00</dd>
-                  </div>
-                  <div class="highlight">
-                    <dt>Значение если холдить</dt>
-                    <dd id="v3HoldValue">$0.00</dd>
-                  </div>
-                  <div>
-                    <dt>Комиссии</dt>
-                    <dd>$0.00</dd>
-                  </div>
-                </dl>
-              </article>
-            </div>
-
-            <div class="difference-panel">
-              <span>Разница против HODL</span>
-              <strong id="v3DifferenceValue">$0.00</strong>
-            </div>
-
-            <div class="difference-panel compact-panel">
-              <span>Дней, чтобы комиссии перекрыли IL</span>
-              <strong id="v3DaysToCover">Недостаточно данных</strong>
-            </div>
-
-            <p class="result-summary" id="v3ResultSummary">
-              Введите диапазон и будущую цену, чтобы увидеть результат концентрированной ликвидности.
-            </p>
-          </section>
         </section>
-
       </section>
     </main>
 

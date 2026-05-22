@@ -16,11 +16,13 @@
 
 * {
   box-sizing: border-box;
+  min-width: 0;
 }
 
 body {
   margin: 0;
   min-width: 320px;
+  overflow-x: hidden;
   background: linear-gradient(180deg, #fbfbfb 0 270px, var(--bg) 270px);
   color: var(--text);
   font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
@@ -57,12 +59,14 @@ h1 {
   font-size: clamp(40px, 7vw, 70px);
   line-height: 1.05;
   letter-spacing: 0;
+  overflow-wrap: anywhere;
 }
 
 h2 {
   margin: 0;
   font-size: 30px;
   line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .calculator {
@@ -267,6 +271,36 @@ h2 {
   align-items: start;
 }
 
+.v3-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.9fr);
+  gap: 22px;
+  align-items: end;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(230, 189, 25, 0.11), transparent 46%),
+    #101010;
+  box-shadow: 0 18px 48px var(--shadow);
+  padding: 24px;
+}
+
+.v3-intro h2 {
+  max-width: 760px;
+}
+
+.v3-intro p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.v3-flow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
 .v3-left,
 .v3-right {
   display: grid;
@@ -291,6 +325,10 @@ h2 {
   border: 1px solid var(--line);
   box-shadow: 0 18px 48px var(--shadow);
   padding: 22px 24px;
+}
+
+.v3-step-card {
+  align-content: start;
 }
 
 .v3-card-title {
@@ -426,6 +464,65 @@ h2 {
   gap: 12px;
 }
 
+.step-output,
+.fee-verdict {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.status-card {
+  display: grid;
+  gap: 8px;
+  border: 1px solid rgba(230, 189, 25, 0.28);
+  border-radius: 8px;
+  background: rgba(230, 189, 25, 0.08);
+  padding: 14px;
+}
+
+.status-card span {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.status-card strong {
+  color: var(--accent);
+  font-size: 24px;
+}
+
+.status-card p {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.45;
+}
+
+.break-even-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.break-even-grid div {
+  display: grid;
+  gap: 7px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #171414;
+  padding: 14px;
+}
+
+.break-even-grid span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.break-even-grid strong {
+  color: var(--text);
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+}
+
 .fee-tier-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -466,6 +563,22 @@ h2 {
 .fee-tier-button.active {
   border-color: var(--accent);
   background: #2b260f;
+}
+
+.secondary-action {
+  width: fit-content;
+  min-height: 42px;
+  border: 1px solid rgba(230, 189, 25, 0.5);
+  border-radius: 6px;
+  background: rgba(230, 189, 25, 0.12);
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 800;
+  padding: 9px 14px;
+}
+
+.secondary-action:hover {
+  background: rgba(230, 189, 25, 0.2);
 }
 
 .quantity-item strong {
@@ -771,6 +884,21 @@ h2 {
   margin: 0 0 12px;
 }
 
+.v3-results {
+  border-radius: 8px;
+  padding: 22px 24px;
+}
+
+.v3-results .strategy-compare,
+.v3-results .result-grid {
+  grid-template-columns: 1fr;
+}
+
+.v3-results .result-card {
+  min-height: 0;
+  padding: 22px 18px;
+}
+
 .pool-explanation {
   max-width: 900px;
   margin: 0 0 18px;
@@ -949,6 +1077,12 @@ h2 {
   gap: 8px;
 }
 
+.duration-buttons {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
 .duration-button {
   min-height: 42px;
   border: 1px solid var(--line);
@@ -973,6 +1107,31 @@ h2 {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 18px;
+}
+
+.loss-cheatsheet {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.loss-cheatsheet div {
+  display: grid;
+  gap: 8px;
+  border-radius: 8px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 16px;
+}
+
+.loss-cheatsheet span {
+  color: var(--muted);
+}
+
+.loss-cheatsheet strong {
+  color: var(--accent);
+  font-size: 26px;
+  font-variant-numeric: tabular-nums;
 }
 
 .explain p {
@@ -1003,14 +1162,34 @@ h2 {
     padding-bottom: 26px;
   }
 
+  h1 {
+    max-width: 320px;
+    margin: 0 auto;
+    font-size: 20px;
+    line-height: 1.16;
+    word-break: break-word;
+  }
+
+  .eyebrow {
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 9px;
+    overflow-wrap: anywhere;
+  }
+
   .split-grid,
   .price-grid,
   .three-grid,
+  .v3-intro,
+  .v3-flow,
   .v3-pair-row,
   .v3-dashboard,
   .compact-grid,
+  .break-even-grid,
   .commission-grid,
   .memory-grid,
+  .loss-cheatsheet,
   .strategy-compare,
   .history-stats,
   .result-grid {
@@ -1024,9 +1203,11 @@ h2 {
   .protocol-tabs,
   .asset-tabs {
     width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .duration-group {
+  .duration-group,
+  .duration-buttons {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -1060,16 +1241,21 @@ h2 {
   }
 
   .step h2 {
-    font-size: 21px;
+    font-size: 17px;
+    line-height: 1.24;
+    word-break: break-word;
   }
 
   .wide-field,
   .field {
-    grid-template-columns: minmax(0, 1fr) 86px;
+    grid-template-columns: 1fr;
   }
 
   .field span {
+    order: -2;
+    justify-content: flex-start;
     font-size: 11px;
+    padding: 0 10px;
   }
 
   .result-card {
