@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Непостоянные потери V2 на примере биткоина и эфира</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <p class="eyebrow">Classic AMM 50/50</p>
+        <h1>Непостоянные потери V2 на примере биткоина и эфира</h1>
+      </section>
+
+      <section class="calculator" aria-label="Калькулятор непостоянных потерь V2">
+        <div class="asset-tabs" role="tablist" aria-label="Выбор монеты">
+          <button class="asset-tab active" type="button" role="tab" aria-selected="true" data-asset="ethereum">
+            Эфир
+          </button>
+          <button class="asset-tab" type="button" role="tab" aria-selected="false" data-asset="bitcoin">
+            Bitcoin
+          </button>
+        </div>
+
+        <div class="panel inputs-panel">
+          <div class="steps">
+            <section class="step">
+              <div class="step-head">
+                <span class="step-number">1</span>
+                <div>
+                  <h2>Введите сумму позиции</h2>
+                  <p id="positionHint">Например, вы вносите $1000 в пул ETH/USDC.</p>
+                </div>
+              </div>
+
+              <label class="field wide-field">
+                <span>Сумма позиции, $</span>
+                <input id="totalLiquidity" type="number" min="0" step="any" value="1000" inputmode="decimal">
+              </label>
+            </section>
+
+            <section class="step">
+              <div class="step-head">
+                <span class="step-number">2</span>
+                <div>
+                  <h2>V2 распределяет 50/50</h2>
+                  <p id="splitHint">Половина остается в USDC, половина покупает ETH по выбранной цене.</p>
+                </div>
+              </div>
+
+              <div class="split-grid">
+                <div class="split-item">
+                  <span>Токен A (USDC)</span>
+                  <strong id="usdcAllocation">$500.00</strong>
+                </div>
+                <div class="split-item">
+                  <span id="assetAllocationLabel">Токен B (ETH)</span>
+                  <strong id="assetAllocation">$500.00</strong>
+                </div>
+              </div>
+            </section>
+
+            <section class="step">
+              <div class="step-head">
+                <span class="step-number">3</span>
+                <div>
+                  <h2 id="currentPriceTitle">Текущая цена ETH</h2>
+                  <p id="priceStatus">Подсказка загрузится ниже. Первый расчет лучше начать с округленных цифр для более наглядного понимания.</p>
+                </div>
+              </div>
+
+              <div class="price-grid">
+                <label class="field">
+                  <span id="currentPriceLabel">ETH сейчас, $</span>
+                  <input id="currentAssetPrice" type="number" min="0" step="any" value="2000" inputmode="decimal">
+                </label>
+
+                <div class="split-item quantity-item">
+                  <span id="assetAmountLabel">Количество ETH в позиции</span>
+                  <strong id="initialAssetAmount">0.166667 ETH</strong>
+                </div>
+              </div>
+            </section>
+
+            <section class="step">
+              <div class="step-head">
+                <span class="step-number">4</span>
+                <div>
+                  <h2>Задайте будущую цену</h2>
+                  <p id="futureHint">Для первого примера поставьте цену в 2 раза выше стартовой.</p>
+                </div>
+              </div>
+
+              <label class="field wide-field">
+                <span id="futurePriceLabel">ETH потом, $</span>
+                <input id="futureAssetPrice" type="number" min="0" step="any" value="4000" inputmode="decimal">
+              </label>
+            </section>
+
+          </div>
+        </div>
+
+        <aside class="explain">
+          <h2>Пример</h2>
+          <p id="exampleIntro">Если было $1000: $500 остается в USDC, а $500 переводится в ETH по выбранной цене.</p>
+          <p id="exampleMove">При росте ETH в 2 раза HODL стоит $1500, а позиция LP V2 стоит $1414.21.</p>
+          <p>Потери относительно HODL: 5.72%. Комиссии в V2 могут уменьшить или перекрыть эту разницу, но это отдельный слой расчета.</p>
+        </aside>
+
+        <section class="commission-panel">
+          <div>
+            <h2>Комиссии</h2>
+            <p>В формуле непостоянных потерь комиссии не считаются. Но в V2 они накапливаются внутри LP-позиции, поэтому ниже можно добавить оценку дохода от комиссий.</p>
+          </div>
+
+          <div class="duration-group" aria-label="Срок работы позиции">
+            <button class="duration-button active" type="button" data-months="1">1 месяц</button>
+            <button class="duration-button" type="button" data-months="3">3 месяца</button>
+            <button class="duration-button" type="button" data-months="6">6 месяцев</button>
+            <button class="duration-button" type="button" data-months="9">9 месяцев</button>
+            <button class="duration-button" type="button" data-months="12">12 месяцев</button>
+          </div>
+
+          <div class="commission-grid">
+            <label class="field">
+              <span>Доходность за год, %</span>
+              <input id="annualYieldPercent" type="number" min="0" step="any" value="0" inputmode="decimal">
+            </label>
+
+            <div class="split-item quantity-item">
+              <span>Комиссии за период</span>
+              <strong id="periodFeePercent">0.00%</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="results" aria-live="polite">
+          <h2>Результаты</h2>
+          <p class="pool-explanation" id="poolExplanation">
+            Когда цена ETH растет, пул V2 автоматически продает часть ETH в USDC, чтобы сохранить баланс 50/50. Поэтому в LP-позиции становится меньше ETH и больше USDC, чем было бы при обычном холде.
+          </p>
+
+          <div class="result-grid">
+            <article class="result-card">
+              <p class="card-note" id="depositSummary"></p>
+
+              <dl class="metrics">
+                <div>
+                  <dt>Impermanent Loss</dt>
+                  <dd id="impermanentLoss">0.00%</dd>
+                </div>
+                <div>
+                  <dt>Токен A (USDC)</dt>
+                  <dd id="lpTokenA">0.00</dd>
+                </div>
+                <div>
+                  <dt id="lpTokenBLabel">Токен B (ETH)</dt>
+                  <dd id="lpTokenB">0.00</dd>
+                </div>
+                <div>
+                  <dt>Значение если предоставить ликвидность</dt>
+                  <dd id="lpValue">$0.00</dd>
+                </div>
+                <div>
+                  <dt>Комиссии</dt>
+                  <dd id="feeValue">$0.00</dd>
+                </div>
+                <div class="highlight">
+                  <dt>Итог LP с комиссиями</dt>
+                  <dd id="lpValueWithFees">$0.00</dd>
+                </div>
+              </dl>
+            </article>
+
+            <article class="result-card">
+              <p class="card-note" id="holdSummary"></p>
+
+              <dl class="metrics">
+                <div>
+                  <dt>Impermanent Loss</dt>
+                  <dd id="holdImpermanentLoss">0.00%</dd>
+                </div>
+                <div>
+                  <dt>Токен A (USDC)</dt>
+                  <dd id="holdTokenA">0.00</dd>
+                </div>
+                <div>
+                  <dt id="holdTokenBLabel">Токен B (ETH)</dt>
+                  <dd id="holdTokenB">0.00</dd>
+                </div>
+                <div>
+                  <dt>Значение если холдить</dt>
+                  <dd id="holdValue">$0.00</dd>
+                </div>
+                <div>
+                  <dt>Комиссии</dt>
+                  <dd id="holdFeeValue">$0.00</dd>
+                </div>
+                <div class="highlight">
+                  <dt>Итог HODL с комиссиями</dt>
+                  <dd id="holdValueWithFees">$0.00</dd>
+                </div>
+              </dl>
+            </article>
+          </div>
+
+          <div class="difference-panel">
+            <span>Разница против HODL</span>
+            <strong id="differenceValue">$0.00</strong>
+          </div>
+
+          <p class="result-summary" id="resultSummary">
+            При росте ETH с $2000 до $4000 LP-позиция стала бы $1414.21, а HODL — $1500.00. Разница: -$85.79 до учета комиссий.
+          </p>
+        </section>
+
+        <section class="note-panel">
+          <h2>Что важно помнить</h2>
+          <p>Непостоянные потери не означают, что позиция обязательно ушла в минус. Это разница между результатом LP и результатом обычного HODL.</p>
+
+          <div class="memory-grid">
+            <div>
+              <span>Рост в 1.5 раза</span>
+              <strong>2.02%</strong>
+            </div>
+            <div>
+              <span>Рост в 2 раза</span>
+              <strong>5.72%</strong>
+            </div>
+            <div>
+              <span>Рост в 2.5 раза</span>
+              <strong>9.65%</strong>
+            </div>
+          </div>
+
+          <p class="recovery-note">Если цена снова вернулась к стартовой, непостоянных потерь нет. Вы просто заработали свои комиссии.</p>
+        </section>
+
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
