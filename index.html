@@ -377,6 +377,31 @@
             </div>
           </div>
 
+          <section class="chart-panel">
+            <div class="chart-head">
+              <div>
+                <h2>График позиции V3/V4</h2>
+                <p id="v3ChartSummary">Диапазон, текущая цена и будущая цена показаны на одной шкале.</p>
+              </div>
+              <span id="v3ChartBadge">Вне диапазона</span>
+            </div>
+
+            <div class="range-chart-wrap">
+              <svg id="v3RangeChart" class="range-chart" viewBox="0 0 900 320" role="img" aria-label="График диапазона концентрированной ликвидности"></svg>
+            </div>
+
+            <div class="allocation-chart" aria-label="Состав V3/V4 позиции после изменения цены">
+              <div class="allocation-bar">
+                <span id="v3UsdcShare" class="allocation-usdc" style="width: 100%"></span>
+                <span id="v3AssetShare" class="allocation-asset" style="width: 0%"></span>
+              </div>
+              <div class="allocation-labels">
+                <span id="v3UsdcShareText">USDC: 100%</span>
+                <span id="v3AssetShareText">ETH: 0%</span>
+              </div>
+            </div>
+          </section>
+
           <aside class="explain">
             <h2>Как это работает</h2>
             <p id="v3ExplainText">В V3/V4 ликвидность размещается не по всей ценовой кривой, а только в выбранном диапазоне. Внутри диапазона позиция постепенно меняет ETH на USDC при росте цены и USDC на ETH при падении.</p>

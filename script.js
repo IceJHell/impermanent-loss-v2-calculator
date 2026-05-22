@@ -82,6 +82,13 @@ const outputs = {
   v3FuturePriceLabel: document.querySelector("#v3FuturePriceLabel"),
   v3RangeStatus: document.querySelector("#v3RangeStatus"),
   v3DepositSummary: document.querySelector("#v3DepositSummary"),
+  v3ChartSummary: document.querySelector("#v3ChartSummary"),
+  v3ChartBadge: document.querySelector("#v3ChartBadge"),
+  v3RangeChart: document.querySelector("#v3RangeChart"),
+  v3UsdcShare: document.querySelector("#v3UsdcShare"),
+  v3AssetShare: document.querySelector("#v3AssetShare"),
+  v3UsdcShareText: document.querySelector("#v3UsdcShareText"),
+  v3AssetShareText: document.querySelector("#v3AssetShareText"),
   v3HoldSummary: document.querySelector("#v3HoldSummary"),
   v3ImpermanentLoss: document.querySelector("#v3ImpermanentLoss"),
   v3FeeEstimate: document.querySelector("#v3FeeEstimate"),
@@ -129,6 +136,70 @@ function assetValueLine(amount, symbol, price) {
 
 function usdcValueLine(amount) {
   return `${tokenAmount.format(amount)} USDC = ${currency.format(amount)}`;
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function renderV3Chart({ currentPrice, lowerPrice, upperPrice, futurePrice, status, usdcValue, assetValue }) {
+  const minPrice = Math.min(lowerPrice, currentPrice, futurePrice);
+  const maxPrice = Math.max(upperPrice, currentPrice, futurePrice);
+  const chartMin = Math.max(0, minPrice * 0.85);
+  const chartMax = maxPrice * 1.15;
+  const chartRange = chartMax - chartMin || 1;
+  const left = 70;
+  const right = 830;
+  const bottom = 260;
+  const width = right - left;
+  const rangeWidth = upperPrice - lowerPrice || 1;
+  const totalValue = usdcValue + assetValue;
+  const usdcShare = totalValue ? (usdcValue / totalValue) * 100 : 0;
+  const assetShare = totalValue ? 100 - usdcShare : 0;
+
+  const x = (price) => left + ((price - chartMin) / chartRange) * width;
+  const lowerX = clamp(x(lowerPrice), left, right);
+  const upperX = clamp(x(upperPrice), left, right);
+  const currentX = clamp(x(currentPrice), left, right);
+  const futureX = clamp(x(futurePrice), left, right);
+
+  const bars = Array.from({ length: 76 }, (_, index) => {
+    const barWidth = width / 76;
+    const price = chartMin + chartRange * ((index + 0.5) / 76);
+    const inRange = price >= lowerPrice && price <= upperPrice;
+    const distance = Math.abs(price - currentPrice) / rangeWidth;
+    const height = inRange ? 46 + Math.max(0, 1 - distance * 1.9) * 112 : 18;
+    const barX = left + index * barWidth;
+    const barY = bottom - height;
+
+    return `<rect class="bar${inRange ? "" : " outside"}" x="${barX.toFixed(1)}" y="${barY.toFixed(1)}" width="${Math.max(2, barWidth - 2).toFixed(1)}" height="${height.toFixed(1)}" rx="2"></rect>`;
+  }).join("");
+
+  outputs.v3ChartBadge.textContent = status;
+  outputs.v3ChartSummary.textContent =
+    `Активный диапазон: ${currency.format(lowerPrice)} - ${currency.format(upperPrice)}. Текущая цена: ${currency.format(currentPrice)}, будущая цена: ${currency.format(futurePrice)}.`;
+  outputs.v3UsdcShare.style.width = `${usdcShare.toFixed(2)}%`;
+  outputs.v3AssetShare.style.width = `${assetShare.toFixed(2)}%`;
+  outputs.v3UsdcShareText.textContent = `USDC: ${usdcShare.toFixed(1)}%`;
+  outputs.v3AssetShareText.textContent = `${activeV3Asset.symbol}: ${assetShare.toFixed(1)}%`;
+
+  outputs.v3RangeChart.innerHTML = `
+    <rect x="0" y="0" width="900" height="320" fill="#101010"></rect>
+    <rect class="range-fill" x="${lowerX.toFixed(1)}" y="42" width="${Math.max(0, upperX - lowerX).toFixed(1)}" height="218" rx="8"></rect>
+    ${bars}
+    <line class="axis" x1="${left}" y1="${bottom}" x2="${right}" y2="${bottom}"></line>
+    <line class="boundary-line" x1="${lowerX.toFixed(1)}" y1="38" x2="${lowerX.toFixed(1)}" y2="${bottom}"></line>
+    <line class="boundary-line" x1="${upperX.toFixed(1)}" y1="38" x2="${upperX.toFixed(1)}" y2="${bottom}"></line>
+    <line class="current-line" x1="${currentX.toFixed(1)}" y1="28" x2="${currentX.toFixed(1)}" y2="${bottom + 8}"></line>
+    <line class="future-line" x1="${futureX.toFixed(1)}" y1="28" x2="${futureX.toFixed(1)}" y2="${bottom + 8}"></line>
+    <circle cx="${currentX.toFixed(1)}" cy="32" r="7" fill="#e6bd19"></circle>
+    <circle cx="${futureX.toFixed(1)}" cy="32" r="7" fill="#8fe3b1"></circle>
+    <text x="${left}" y="24">Диапазон ликвидности</text>
+    <text class="muted-text" x="${Math.max(left, lowerX - 34).toFixed(1)}" y="292">MIN ${currency.format(lowerPrice)}</text>
+    <text class="muted-text" x="${Math.min(right - 112, upperX - 34).toFixed(1)}" y="292">MAX ${currency.format(upperPrice)}</text>
+    <text class="muted-text" x="${Math.min(right - 135, currentX + 10).toFixed(1)}" y="52">Сейчас ${currency.format(currentPrice)}</text>
+    <text class="muted-text" x="${Math.min(right - 135, futureX + 10).toFixed(1)}" y="76">Потом ${currency.format(futurePrice)}</text>
+  `;
 }
 
 function priceUrl(asset) {
@@ -274,6 +345,7 @@ function calculateV3() {
   if (lowerPrice >= upperPrice) {
     outputs.v3RangeStatus.textContent = "Проверьте диапазон";
     outputs.v3ResultSummary.textContent = "Нижняя граница должна быть меньше верхней.";
+    outputs.v3ChartBadge.textContent = "Ошибка диапазона";
     return;
   }
 
@@ -284,6 +356,7 @@ function calculateV3() {
     outputs.v3RangeStatus.textContent = "Цена вне диапазона";
     outputs.v3ResultSummary.textContent =
       "Для первого расчета поставьте стартовую цену внутри выбранного диапазона.";
+    outputs.v3ChartBadge.textContent = "Цена вне диапазона";
     return;
   }
 
@@ -326,6 +399,15 @@ function calculateV3() {
         : "Укажите доходность";
   outputs.v3ResultSummary.textContent =
     `При изменении цены ${activeV3Asset.symbol} с ${currency.format(currentPrice)} до ${currency.format(futurePrice)} концентрированная позиция до комиссий стала бы ${currency.format(lpValueBeforeFees)}, а HODL стартовых активов — ${currency.format(holdValue)}. С учетом выбранных комиссий итог V3/V4: ${currency.format(lpValue)}. Разница против HODL: ${currency.format(difference)}.`;
+  renderV3Chart({
+    currentPrice,
+    lowerPrice,
+    upperPrice,
+    futurePrice,
+    status: future.status,
+    usdcValue: future.usdc,
+    assetValue: future.asset * futurePrice,
+  });
 
   setTone(outputs.v3DifferenceValue, difference);
 }
