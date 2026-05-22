@@ -70,6 +70,7 @@ h2 {
   gap: 18px;
 }
 
+.protocol-tabs,
 .asset-tabs {
   width: fit-content;
   display: grid;
@@ -83,7 +84,9 @@ h2 {
   box-shadow: 0 12px 36px var(--shadow);
 }
 
-.asset-tab {
+.protocol-tab,
+.asset-tab,
+.v3-asset-tab {
   min-height: 42px;
   border: 1px solid transparent;
   border-radius: 6px;
@@ -93,14 +96,22 @@ h2 {
   font-weight: 800;
 }
 
-.asset-tab:hover {
+.protocol-tab:hover,
+.asset-tab:hover,
+.v3-asset-tab:hover {
   border-color: var(--line);
   color: var(--text);
 }
 
-.asset-tab.active {
+.protocol-tab.active,
+.asset-tab.active,
+.v3-asset-tab.active {
   background: var(--accent);
   color: #1c1705;
+}
+
+.hidden {
+  display: none !important;
 }
 
 .panel,
@@ -214,6 +225,10 @@ h2 {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 18px;
+}
+
+.three-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .split-item {
@@ -477,12 +492,14 @@ h2 {
 
   .split-grid,
   .price-grid,
+  .three-grid,
   .commission-grid,
   .memory-grid,
   .result-grid {
     grid-template-columns: 1fr;
   }
 
+  .protocol-tabs,
   .asset-tabs {
     width: 100%;
   }
