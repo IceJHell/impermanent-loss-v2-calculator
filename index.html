@@ -387,10 +387,24 @@
               <section class="chart-panel">
                 <div class="chart-head">
                   <div>
-                    <h2>Диапазон на цене</h2>
+                    <h2>История цены и диапазон</h2>
                     <p>Зеленая зона — ваш диапазон. Желтая линия — текущая цена, зеленый пунктир — будущая.</p>
                   </div>
-                  <span id="v3RangeStatus">Выше диапазона</span>
+                  <div class="history-tabs" aria-label="Период графика цены">
+                    <button class="history-button active" type="button" data-days="30">1M</button>
+                    <button class="history-button" type="button" data-days="90">3M</button>
+                    <button class="history-button" type="button" data-days="365">1Y</button>
+                  </div>
+                </div>
+
+                <div class="range-chart-wrap">
+                  <svg id="v3HistoryChart" class="range-chart history-chart" viewBox="0 0 900 320" role="img" aria-label="История цены и диапазон V3/V4"></svg>
+                </div>
+
+                <div class="history-stats">
+                  <span id="v3HistoryMin">MIN —</span>
+                  <span id="v3HistoryMax">MAX —</span>
+                  <span id="v3HistoryAvg">AVG —</span>
                 </div>
 
                 <div class="allocation-chart" aria-label="Состав V3/V4 позиции после изменения цены">
@@ -418,6 +432,63 @@
             <p class="pool-explanation" id="v3PoolExplanation">
               Концентрированная ликвидность может дать больше комиссий внутри диапазона, но риск превращения позиции в один актив выше, чем в V2.
             </p>
+
+            <div class="strategy-compare">
+              <article class="strategy-card hodl-card">
+                <div class="strategy-head">
+                  <span>Strategy A: HODL</span>
+                  <strong id="v3CompareHoldValue">$0.00</strong>
+                </div>
+                <dl>
+                  <div>
+                    <dt id="v3CompareHoldAssetLabel">ETH</dt>
+                    <dd id="v3CompareHoldAsset">0.00</dd>
+                  </div>
+                  <div>
+                    <dt>USDC</dt>
+                    <dd id="v3CompareHoldUsdc">0.00</dd>
+                  </div>
+                  <div>
+                    <dt>Комиссии</dt>
+                    <dd>$0.00</dd>
+                  </div>
+                </dl>
+              </article>
+
+              <article class="strategy-card lp-card">
+                <div class="strategy-head">
+                  <span>Strategy B: Uniswap V3/V4</span>
+                  <strong id="v3CompareLpValue">$0.00</strong>
+                </div>
+                <dl>
+                  <div>
+                    <dt id="v3CompareLpAssetLabel">ETH</dt>
+                    <dd id="v3CompareLpAsset">0.00</dd>
+                  </div>
+                  <div>
+                    <dt>USDC</dt>
+                    <dd id="v3CompareLpUsdc">0.00</dd>
+                  </div>
+                  <div>
+                    <dt>LP Yield</dt>
+                    <dd id="v3CompareLpYield">$0.00</dd>
+                  </div>
+                </dl>
+              </article>
+            </div>
+
+            <div class="il-strip">
+              <div>
+                <span>Impermanent Loss</span>
+                <strong id="v3CompareIlValue">$0.00</strong>
+                <em id="v3CompareIlPercent">0.00%</em>
+              </div>
+              <div>
+                <span>PnL</span>
+                <strong id="v3ComparePnlValue">$0.00</strong>
+                <em id="v3ComparePnlPercent">0.00%</em>
+              </div>
+            </div>
 
             <div class="result-grid">
               <article class="result-card">
