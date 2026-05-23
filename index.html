@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Непостоянные потери V2, V3 и V4 на примере биткоина и эфира</title>
-    <link rel="stylesheet" href="styles.css?v=20260523-1914">
+    <link rel="stylesheet" href="styles.css?v=20260523-1924">
   </head>
   <body>
     <main class="page">
@@ -255,33 +255,7 @@
                 <strong id="v3RangeStatus">Вне диапазона</strong>
                 <p id="v3StatusText">Позиция будет пересчитана после ввода цены.</p>
               </div>
-            </section>
-
-            <section class="v3-card v3-step-card">
-              <div class="step-head">
-                <span class="step-number">4</span>
-                <div>
-                  <h2>Проверьте комиссии против HODL</h2>
-                  <p>Сначала считается V3/V4 без комиссий. Потом показывается, сколько комиссий нужно заработать, чтобы не проиграть обычному HODL.</p>
-                </div>
-              </div>
-              <div class="compact-grid">
-                <label class="compact-field"><span>Дней позиция активна</span><input id="v3ActiveDays" type="number" min="0" step="1" value="30" inputmode="numeric"></label>
-                <label class="compact-field"><span>Ваш прогноз комиссий, APR %</span><input id="v3AnnualYieldPercent" type="number" min="0" step="any" value="0" inputmode="decimal"></label>
-              </div>
-              <div class="break-even-grid">
-                <div><span>Нужно комиссий для HODL</span><strong id="v3NeededFees">$0.00</strong></div>
-                <div><span>Прогноз комиссий</span><strong id="v3ForecastFees">$0.00</strong></div>
-                <div><span>Нужный APR</span><strong id="v3RequiredApr">0.00%</strong></div>
-              </div>
-              <span id="v3NeededFeePercent" hidden>0.00%</span>
-              <p class="fee-verdict" id="v3FeeVerdict">Если прогноз комиссий 0%, видно чистое отставание V3/V4 от HODL.</p>
-            </section>
-          </div>
-
-          <section class="v3-dashboard">
-            <div class="v3-left">
-              <section class="chart-panel">
+              <section class="chart-panel embedded-range-panel">
                 <div class="chart-head">
                   <div>
                     <h2>Профиль диапазона</h2>
@@ -303,11 +277,31 @@
                   </div>
                 </div>
               </section>
+            </section>
 
-            </div>
+            <section class="v3-card v3-step-card v3-commission-step">
+              <div class="step-head">
+                <span class="step-number">4</span>
+                <div>
+                  <h2>Проверьте комиссии против HODL</h2>
+                  <p>Сначала считается V3/V4 без комиссий. Потом показывается, сколько комиссий нужно заработать, чтобы не проиграть обычному HODL.</p>
+                </div>
+              </div>
+              <div class="compact-grid">
+                <label class="compact-field"><span>Дней позиция активна</span><input id="v3ActiveDays" type="number" min="0" step="1" value="30" inputmode="numeric"></label>
+                <label class="compact-field"><span>Ваш прогноз комиссий, APR %</span><input id="v3AnnualYieldPercent" type="number" min="0" step="any" value="0" inputmode="decimal"></label>
+              </div>
+              <div class="break-even-grid">
+                <div><span>Нужно комиссий для HODL</span><strong id="v3NeededFees">$0.00</strong></div>
+                <div><span>Прогноз комиссий</span><strong id="v3ForecastFees">$0.00</strong></div>
+                <div><span>Нужный APR</span><strong id="v3RequiredApr">0.00%</strong></div>
+              </div>
+              <span id="v3NeededFeePercent" hidden>0.00%</span>
+              <p class="fee-verdict" id="v3FeeVerdict">Если прогноз комиссий 0%, видно чистое отставание V3/V4 от HODL.</p>
+            </section>
+          </div>
 
-            <div class="v3-right">
-              <section class="results v3-results" aria-live="polite">
+          <section class="results v3-results scale-results" aria-live="polite">
                 <h2>Сравнение V3/V4 с HODL</h2>
                 <p class="pool-explanation" id="v3PoolExplanation">Сравниваем стартовый набор активов: просто держать его или положить в концентрированный диапазон.</p>
 
@@ -374,9 +368,6 @@
                   <strong id="v3DaysToCover">Недостаточно данных</strong>
                 </div>
                 <p class="result-summary" id="v3ResultSummary">Введите диапазон и будущую цену, чтобы увидеть результат.</p>
-              </section>
-
-            </div>
           </section>
 
           <section class="chart-panel history-wide-panel">
@@ -412,6 +403,6 @@
       </section>
     </main>
 
-    <script src="script.js?v=20260523-1914"></script>
+    <script src="script.js?v=20260523-1924"></script>
   </body>
 </html>

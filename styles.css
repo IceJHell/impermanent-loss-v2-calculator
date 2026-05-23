@@ -532,6 +532,29 @@ h2 {
   font-variant-numeric: tabular-nums;
 }
 
+.v3-commission-step {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(260px, 0.9fr) minmax(240px, 0.72fr) minmax(420px, 1.25fr);
+  align-items: stretch;
+}
+
+.v3-commission-step .step-head {
+  align-self: start;
+}
+
+.v3-commission-step .compact-grid {
+  grid-template-columns: 1fr;
+}
+
+.v3-commission-step .break-even-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.v3-commission-step .fee-verdict,
+.v3-commission-step #v3NeededFeePercent {
+  grid-column: 1 / -1;
+}
+
 .fee-tier-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -736,6 +759,14 @@ h2 {
   padding: 22px 24px;
 }
 
+.embedded-range-panel {
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent),
+    #151313;
+  padding: 16px;
+}
+
 .chart-head {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -927,20 +958,70 @@ h2 {
   padding: 8px 8px 14px;
 }
 
+.scale-results {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 50% 8%, rgba(230, 189, 25, 0.08), transparent 34%),
+    #101010;
+  box-shadow: 0 18px 48px var(--shadow);
+  margin-top: 20px;
+  padding: 24px;
+}
+
 .strategy-compare {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-  margin: 18px 0 14px;
+  gap: 42px;
+  position: relative;
+  margin: 24px 0 28px;
+  padding-bottom: 44px;
+}
+
+.strategy-compare::before {
+  content: "";
+  position: absolute;
+  left: 9%;
+  right: 9%;
+  bottom: 20px;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(143, 227, 177, 0.72), var(--accent), rgba(255, 142, 125, 0.72));
+  box-shadow: 0 0 22px rgba(230, 189, 25, 0.16);
+}
+
+.strategy-compare::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  transform: translateX(-50%);
+  border-left: 18px solid transparent;
+  border-right: 18px solid transparent;
+  border-bottom: 34px solid rgba(230, 189, 25, 0.82);
 }
 
 .strategy-card {
   display: grid;
   gap: 12px;
+  position: relative;
+  z-index: 1;
   border-radius: 8px;
   background: var(--panel);
   border: 1px solid var(--line);
   padding: 16px;
+}
+
+.strategy-card::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -26px;
+  width: 2px;
+  height: 26px;
+  background: var(--line);
 }
 
 .hodl-card {
@@ -1041,7 +1122,6 @@ h2 {
   padding: 22px 24px;
 }
 
-.v3-results .strategy-compare,
 .v3-results .result-grid {
   grid-template-columns: 1fr;
 }
@@ -1365,6 +1445,14 @@ h2 {
     grid-template-columns: 1fr;
   }
 
+  .v3-commission-step {
+    grid-template-columns: 1fr;
+  }
+
+  .v3-commission-step .break-even-grid {
+    grid-template-columns: 1fr;
+  }
+
   .live-pool-card {
     grid-template-columns: 1fr;
   }
@@ -1390,6 +1478,26 @@ h2 {
 
   .chart-panel {
     padding: 20px 14px;
+  }
+
+  .scale-results {
+    padding: 18px 12px;
+  }
+
+  .strategy-compare {
+    gap: 18px;
+    padding-bottom: 34px;
+  }
+
+  .strategy-compare::before {
+    left: 12%;
+    right: 12%;
+  }
+
+  .strategy-compare::before,
+  .strategy-compare::after,
+  .strategy-card::after {
+    display: none;
   }
 
   .inputs-panel {
