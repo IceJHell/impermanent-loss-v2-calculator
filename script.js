@@ -21,6 +21,11 @@ const assets = {
         "0.05": "0xc31e54c7a869b9fcbecc14363cf510d1c41fa443",
         "0.3": "0x17c14d2c404d167802b16c450d3c99f88f2c4f4d",
       },
+      base: {
+        "0.01": "0xb4cb800910b228ed3d0834cf79d697127bbb00e5",
+        "0.05": "0xd0b53d9277642d899df5c87a3966a349a798f224",
+        "0.3": "0x6c561b446416e1a00e8e93e221854d6ea4171372",
+      },
     },
   },
   bitcoin: {
@@ -146,6 +151,7 @@ const outputs = {
   v3ComparePnlValue: $("#v3ComparePnlValue"),
   v3ComparePnlPercent: $("#v3ComparePnlPercent"),
   v3NeededFees: $("#v3NeededFees"),
+  v3ForecastFees: $("#v3ForecastFees"),
   v3NeededFeePercent: $("#v3NeededFeePercent"),
   v3RequiredApr: $("#v3RequiredApr"),
   v3FeeVerdict: $("#v3FeeVerdict"),
@@ -205,9 +211,19 @@ function geckoPoolUrl(network, poolAddress) {
   return `https://api.geckoterminal.com/api/v2/networks/${network}/pools/${poolAddress}`;
 }
 
+function v3NetworkName(network = selectedV3Network) {
+  if (network === "eth") return "Ethereum";
+  if (network === "arbitrum") return "Arbitrum";
+  if (network === "base") return "Base";
+  return network;
+}
+
 function resetV3PoolData(message) {
   if (inputs.v3PoolVolume) inputs.v3PoolVolume.value = 0;
   if (inputs.v3PoolActiveLiquidity) inputs.v3PoolActiveLiquidity.value = 0;
+  if (inputs.v3AnnualYieldPercent) inputs.v3AnnualYieldPercent.value = 0;
+  if (outputs.v3PoolFeeEstimate) outputs.v3PoolFeeEstimate.textContent = currency.format(0);
+  if (outputs.v3PoolAprEstimate) outputs.v3PoolAprEstimate.textContent = "загрузка...";
   if (message && outputs.v3PoolDataStatus) outputs.v3PoolDataStatus.textContent = message;
 }
 
@@ -340,8 +356,8 @@ function renderV3Chart({ currentPrice, lowerPrice, upperPrice, futurePrice, stat
     `Диапазон ${currency.format(lowerPrice)} — ${currency.format(upperPrice)}. Сейчас ${currency.format(currentPrice)}, сценарий ${currency.format(futurePrice)}.`;
   outputs.v3UsdcShare.style.width = `${usdcShare.toFixed(2)}%`;
   outputs.v3AssetShare.style.width = `${assetShare.toFixed(2)}%`;
-  outputs.v3UsdcShareText.textContent = `USDC: ${usdcShare.toFixed(1)}%`;
-  outputs.v3AssetShareText.textContent = `${activeV3Asset.symbol}: ${assetShare.toFixed(1)}%`;
+  outputs.v3UsdcShareText.textContent = `USDC: ${usdcShare.toFixed(1)}% (${currency.format(usdcValue)})`;
+  outputs.v3AssetShareText.textContent = `${activeV3Asset.symbol}: ${assetShare.toFixed(1)}% (${currency.format(assetValue)})`;
 
   outputs.v3RangeChart.innerHTML = `
     <rect x="60" y="56" width="780" height="190" rx="18" class="range-fill"></rect>
@@ -357,6 +373,9 @@ function renderV3Chart({ currentPrice, lowerPrice, upperPrice, futurePrice, stat
     <text x="${currentX}" y="36" text-anchor="middle">сейчас</text>
     <text x="${futureX}" y="36" text-anchor="middle">потом</text>
     <text x="450" y="155" text-anchor="middle">${status}</text>
+    <text x="95" y="112" class="muted-text">ниже диапазона: ${activeV3Asset.symbol}</text>
+    <text x="805" y="112" text-anchor="end" class="muted-text">выше диапазона: USDC</text>
+    <text x="450" y="198" text-anchor="middle" class="muted-text">внутри диапазона позиция постепенно перетекает между ${activeV3Asset.symbol} и USDC</text>
   `;
 }
 
@@ -498,6 +517,7 @@ function calculateV3() {
   outputs.v3ComparePnlValue.textContent = currency.format(difference);
   outputs.v3ComparePnlPercent.textContent = holdValue ? formatPercent((difference / holdValue) * 100) : "0.00%";
   outputs.v3NeededFees.textContent = currency.format(neededFees);
+  if (outputs.v3ForecastFees) outputs.v3ForecastFees.textContent = currency.format(feeValue);
   outputs.v3NeededFeePercent.textContent = `${neededFeePercent.toFixed(2)}%`;
   outputs.v3RequiredApr.textContent = activeDays > 0 ? `${requiredApr.toFixed(2)}%` : "—";
   outputs.v3PoolShare.textContent = `${(poolShare * 100).toFixed(4)}%`;
@@ -560,7 +580,7 @@ async function loadAssetPrice() {
 async function loadLiveV3PoolData() {
   const pools = activeV3Asset.geckoPools?.[selectedV3Network] || {};
   const poolAddress = pools[String(selectedV3FeeTier)];
-  const networkName = selectedV3Network === "eth" ? "Ethereum" : "Arbitrum";
+  const networkName = v3NetworkName();
 
   if (!poolAddress) {
     outputs.v3PoolDataStatus.textContent =
@@ -573,12 +593,18 @@ async function loadLiveV3PoolData() {
   try {
     const response = await fetch(geckoPoolUrl(selectedV3Network, poolAddress), { cache: "no-store" });
     if (!response.ok) throw new Error("GeckoTerminal request failed");
-    const pool = (await response.json())?.data?.attributes;
+  const pool = (await response.json())?.data?.attributes;
     if (!pool) throw new Error("Pool data is missing");
 
     const volume24h = Number(pool.volume_usd?.h24 || 0);
     const reserveUsd = Number(pool.reserve_in_usd || 0);
-    const livePrice = Number(pool.base_token_price_quote_token || pool.base_token_price_usd || 0);
+    const priceOptions = [
+      Number(pool.base_token_price_quote_token || 0),
+      Number(pool.quote_token_price_base_token || 0),
+      Number(pool.base_token_price_usd || 0),
+      Number(pool.quote_token_price_usd || 0),
+    ].filter((price) => Number.isFinite(price) && price > 10);
+    const livePrice = priceOptions[0] || 0;
 
     if (volume24h > 0) inputs.v3PoolVolume.value = volume24h.toFixed(2);
     if (reserveUsd > 0) inputs.v3PoolActiveLiquidity.value = reserveUsd.toFixed(2);
@@ -587,6 +613,11 @@ async function loadLiveV3PoolData() {
     }
 
     calculateV3();
+    const liveApr = outputs.v3PoolAprEstimate.textContent.replace("%", "");
+    if (Number(liveApr) > 0) {
+      inputs.v3AnnualYieldPercent.value = Number(liveApr).toFixed(2);
+      calculateV3();
+    }
     outputs.v3PoolDataStatus.textContent =
       `Live ${networkName} ${pool.name || activeV3Asset.pool}: 24h volume ${currency.format(volume24h)}, TVL/reserve ${currency.format(reserveUsd)}, price ${currency.format(livePrice)}. Источник: GeckoTerminal. Эти цифры близки к Uniswap Explore, но могут немного отличаться из-за задержки обновления и методики агрегатора.`;
   } catch (error) {
@@ -643,10 +674,11 @@ function selectV3Asset(assetId) {
   inputs.v3LowerPrice.value = activeV3Asset.defaultLower;
   inputs.v3UpperPrice.value = activeV3Asset.defaultUpper;
   inputs.v3FuturePrice.value = activeV3Asset.defaultPrice * 2;
-  resetV3PoolData(`Выбрана пара ${activeV3Asset.pool}. Нажмите “Подтянуть live-данные пула” или введите volume/liquidity вручную.`);
+  resetV3PoolData(`Выбрана пара ${activeV3Asset.pool}. Live-данные обновляются автоматически.`);
   updateV3AssetText();
   calculateV3();
   loadV3History(selectedHistoryDays);
+  loadLiveV3PoolData();
 }
 
 document.querySelectorAll(".asset-tab").forEach((tab) => {
@@ -665,8 +697,9 @@ document.querySelectorAll(".fee-tier-button").forEach((button) => {
   button.addEventListener("click", () => {
     selectedV3FeeTier = Number(button.dataset.feeTier);
     document.querySelectorAll(".fee-tier-button").forEach((item) => item.classList.toggle("active", item === button));
-    resetV3PoolData(`Fee tier изменен на ${selectedV3FeeTier}%. Нажмите “Подтянуть live-данные пула”, чтобы обновить volume/liquidity.`);
+    resetV3PoolData(`Fee tier изменен на ${selectedV3FeeTier}%. Live-данные обновляются автоматически.`);
     calculateV3();
+    loadLiveV3PoolData();
   });
 });
 
@@ -674,9 +707,10 @@ document.querySelectorAll(".network-button").forEach((button) => {
   button.addEventListener("click", () => {
     selectedV3Network = button.dataset.network;
     document.querySelectorAll(".network-button").forEach((item) => item.classList.toggle("active", item === button));
-    const networkName = selectedV3Network === "eth" ? "Ethereum" : "Arbitrum";
-    resetV3PoolData(`Сеть изменена на ${networkName}. Нажмите “Подтянуть live-данные пула”, чтобы обновить volume/liquidity.`);
+    const networkName = v3NetworkName();
+    resetV3PoolData(`Сеть изменена на ${networkName}. Live-данные обновляются автоматически.`);
     calculateV3();
+    loadLiveV3PoolData();
   });
 });
 
@@ -723,3 +757,4 @@ calculate();
 calculateV3();
 loadAssetPrice();
 loadV3History(selectedHistoryDays);
+loadLiveV3PoolData();

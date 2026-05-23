@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Непостоянные потери V2, V3 и V4 на примере биткоина и эфира</title>
-    <link rel="stylesheet" href="styles.css?v=20260523-1822">
+    <link rel="stylesheet" href="styles.css?v=20260523-1835">
   </head>
   <body>
     <main class="page">
@@ -113,6 +113,8 @@
             </div>
           </section>
 
+
+
           <aside class="explain">
             <h2>Что происходит с пулом, когда цена растет</h2>
             <p id="poolExplanation">Когда цена ETH растет, пул V2 автоматически продает часть ETH в USDC, чтобы сохранить баланс 50/50.</p>
@@ -202,6 +204,15 @@
                 <span>Сеть для live-данных</span>
                 <button class="network-button active" type="button" data-network="eth">Ethereum</button>
                 <button class="network-button" type="button" data-network="arbitrum">Arbitrum</button>
+                <button class="network-button" type="button" data-network="base">Base</button>
+              </div>
+              <div class="live-pool-card" aria-live="polite">
+                <div><span>Live APR комиссий</span><strong id="v3PoolAprEstimate">загрузка...</strong></div>
+                <div><span>Комиссии за 24ч</span><strong id="v3PoolFeeEstimate">$0.00</strong></div>
+                <p id="v3PoolDataStatus">Выберите сеть и fee tier. Данные пула подтянутся автоматически.</p>
+                <input id="v3PoolVolume" type="hidden" value="0">
+                <input id="v3PoolActiveLiquidity" type="hidden" value="0">
+                <span id="v3PoolShare" hidden>0.00%</span>
               </div>
             </section>
 
@@ -258,10 +269,11 @@
                 <label class="compact-field"><span>Ваш прогноз комиссий, APR %</span><input id="v3AnnualYieldPercent" type="number" min="0" step="any" value="0" inputmode="decimal"></label>
               </div>
               <div class="break-even-grid">
-                <div><span>Нужно комиссий</span><strong id="v3NeededFees">$0.00</strong></div>
-                <div><span>Это от депозита</span><strong id="v3NeededFeePercent">0.00%</strong></div>
+                <div><span>Нужно комиссий для HODL</span><strong id="v3NeededFees">$0.00</strong></div>
+                <div><span>Прогноз комиссий</span><strong id="v3ForecastFees">$0.00</strong></div>
                 <div><span>Нужный APR</span><strong id="v3RequiredApr">0.00%</strong></div>
               </div>
+              <span id="v3NeededFeePercent" hidden>0.00%</span>
               <p class="fee-verdict" id="v3FeeVerdict">Если прогноз комиссий 0%, видно чистое отставание V3/V4 от HODL.</p>
             </section>
           </div>
@@ -291,27 +303,6 @@
                 </div>
               </section>
 
-              <section class="chart-panel">
-                <div class="chart-head">
-                  <div>
-                    <h2>История цены и диапазон</h2>
-                    <p>Зеленая зона — ваш диапазон. Желтая линия — текущая цена, зеленый пунктир — будущая.</p>
-                  </div>
-                  <div class="history-tabs" aria-label="Период графика цены">
-                    <button class="history-button active" type="button" data-days="30">1M</button>
-                    <button class="history-button" type="button" data-days="90">3M</button>
-                    <button class="history-button" type="button" data-days="365">1Y</button>
-                  </div>
-                </div>
-                <div class="range-chart-wrap">
-                  <svg id="v3HistoryChart" class="range-chart history-chart" viewBox="0 0 900 320" role="img" aria-label="История цены и диапазон V3/V4"></svg>
-                </div>
-                <div class="history-stats">
-                  <span id="v3HistoryMin">MIN —</span>
-                  <span id="v3HistoryMax">MAX —</span>
-                  <span id="v3HistoryAvg">AVG —</span>
-                </div>
-              </section>
             </div>
 
             <div class="v3-right">
@@ -384,34 +375,32 @@
                 <p class="result-summary" id="v3ResultSummary">Введите диапазон и будущую цену, чтобы увидеть результат.</p>
               </section>
 
-              <section class="v3-card uniswap-card">
-                <div class="v3-card-title">
-                  <div>
-                    <h2>Данные Uniswap как в Poolfish</h2>
-                    <p>Poolfish берет объем торгов, активную ликвидность и fee tier. В статической версии безопаснее ввести эти данные вручную или подключить backend/proxy к The Graph.</p>
-                  </div>
-                  <span>optional</span>
-                </div>
-                <div class="poolfish-grid">
-                  <label class="compact-field">
-                    <span>Объем торгов за период, $</span>
-                    <input id="v3PoolVolume" type="number" min="0" step="any" value="0" inputmode="decimal">
-                  </label>
-                  <label class="compact-field">
-                    <span>TVL / ликвидность пула, $</span>
-                    <input id="v3PoolActiveLiquidity" type="number" min="0" step="any" value="0" inputmode="decimal">
-                  </label>
-                </div>
-                <button class="secondary-action" id="v3LivePoolButton" type="button">Подтянуть live-данные пула</button>
-                <div class="poolfish-results">
-                  <div><span>Ваша доля TVL пула</span><strong id="v3PoolShare">0.00%</strong></div>
-                  <div><span>Оценка комиссий за 24ч</span><strong id="v3PoolFeeEstimate">$0.00</strong></div>
-                  <div><span>Годовой APR из 24ч</span><strong id="v3PoolAprEstimate">0.00%</strong></div>
-                </div>
-                <p class="step-output" id="v3PoolDataStatus">Упрощенная формула: комиссии за 24ч ≈ fee tier × объем за 24ч × ваша позиция / (TVL пула + ваша позиция). Это приближение: Poolfish точнее использует активную tick-liquidity внутри диапазона.</p>
-              </section>
             </div>
           </section>
+
+          <section class="chart-panel history-wide-panel">
+                <div class="chart-head">
+                  <div>
+                    <h2>История цены и диапазон</h2>
+                    <p>Зеленая зона — ваш диапазон. Желтая линия — текущая цена, зеленый пунктир — будущая.</p>
+                  </div>
+                  <div class="history-tabs" aria-label="Период графика цены">
+                    <button class="history-button active" type="button" data-days="30">1M</button>
+                    <button class="history-button" type="button" data-days="90">3M</button>
+                    <button class="history-button" type="button" data-days="180">6M</button>
+                    <button class="history-button" type="button" data-days="270">9M</button>
+                    <button class="history-button" type="button" data-days="365">12M</button>
+                  </div>
+                </div>
+                <div class="range-chart-wrap">
+                  <svg id="v3HistoryChart" class="range-chart history-chart" viewBox="0 0 900 320" role="img" aria-label="История цены и диапазон V3/V4"></svg>
+                </div>
+                <div class="history-stats">
+                  <span id="v3HistoryMin">MIN —</span>
+                  <span id="v3HistoryMax">MAX —</span>
+                  <span id="v3HistoryAvg">AVG —</span>
+                </div>
+              </section>
 
           <aside class="explain">
             <h2>Логика V3/V4 простыми словами</h2>
@@ -422,6 +411,6 @@
       </section>
     </main>
 
-    <script src="script.js?v=20260523-1822"></script>
+    <script src="script.js?v=20260523-1835"></script>
   </body>
 </html>
