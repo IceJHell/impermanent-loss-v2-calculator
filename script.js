@@ -159,6 +159,7 @@ const outputs = {
   v3PoolShare: $("#v3PoolShare"),
   v3PoolFeeEstimate: $("#v3PoolFeeEstimate"),
   v3PoolAprEstimate: $("#v3PoolAprEstimate"),
+  v3PoolLinks: $("#v3PoolLinks"),
 };
 
 const currency = new Intl.NumberFormat("en-US", {
@@ -211,11 +212,37 @@ function geckoPoolUrl(network, poolAddress) {
   return `https://api.geckoterminal.com/api/v2/networks/${network}/pools/${poolAddress}`;
 }
 
+function externalNetworkSlug(network = selectedV3Network) {
+  return network === "eth" ? "ethereum" : network;
+}
+
+function dexScreenerPoolUrl(network, poolAddress) {
+  return `https://api.dexscreener.com/latest/dex/pairs/${externalNetworkSlug(network)}/${poolAddress}`;
+}
+
+function uniswapPoolUrl(network, poolAddress) {
+  return `https://app.uniswap.org/explore/pools/${externalNetworkSlug(network)}/${poolAddress}`;
+}
+
 function v3NetworkName(network = selectedV3Network) {
   if (network === "eth") return "Ethereum";
   if (network === "arbitrum") return "Arbitrum";
   if (network === "base") return "Base";
   return network;
+}
+
+function updateV3PoolLinks(poolAddress) {
+  if (!outputs.v3PoolLinks) return;
+
+  if (!poolAddress) {
+    outputs.v3PoolLinks.innerHTML = "<span>Для этой комбинации пока нет ссылки на live-пул</span>";
+    return;
+  }
+
+  outputs.v3PoolLinks.innerHTML = `
+    <a href="${uniswapPoolUrl(selectedV3Network, poolAddress)}" target="_blank" rel="noopener">Uniswap ↗</a>
+    <a href="https://dexscreener.com/${externalNetworkSlug(selectedV3Network)}/${poolAddress}" target="_blank" rel="noopener">DexScreener ↗</a>
+  `;
 }
 
 function resetV3PoolData(message) {
@@ -583,28 +610,54 @@ async function loadLiveV3PoolData() {
   const networkName = v3NetworkName();
 
   if (!poolAddress) {
+    updateV3PoolLinks(null);
     outputs.v3PoolDataStatus.textContent =
       `Для ${activeV3Asset.pool} ${selectedV3FeeTier}% в сети ${networkName} пока нет настроенного live-пула. Можно оставить ручной ввод.`;
     return;
   }
 
+  updateV3PoolLinks(poolAddress);
   outputs.v3PoolDataStatus.textContent = `Загружаю live-данные ${networkName} из GeckoTerminal...`;
 
   try {
-    const response = await fetch(geckoPoolUrl(selectedV3Network, poolAddress), { cache: "no-store" });
-    if (!response.ok) throw new Error("GeckoTerminal request failed");
-  const pool = (await response.json())?.data?.attributes;
-    if (!pool) throw new Error("Pool data is missing");
+    let poolData;
 
-    const volume24h = Number(pool.volume_usd?.h24 || 0);
-    const reserveUsd = Number(pool.reserve_in_usd || 0);
-    const priceOptions = [
-      Number(pool.base_token_price_quote_token || 0),
-      Number(pool.quote_token_price_base_token || 0),
-      Number(pool.base_token_price_usd || 0),
-      Number(pool.quote_token_price_usd || 0),
-    ].filter((price) => Number.isFinite(price) && price > 10);
-    const livePrice = priceOptions[0] || 0;
+    try {
+      const response = await fetch(geckoPoolUrl(selectedV3Network, poolAddress), { cache: "no-store" });
+      if (!response.ok) throw new Error("GeckoTerminal request failed");
+      const pool = (await response.json())?.data?.attributes;
+      if (!pool) throw new Error("Pool data is missing");
+
+      const priceOptions = [
+        Number(pool.base_token_price_quote_token || 0),
+        Number(pool.quote_token_price_base_token || 0),
+        Number(pool.base_token_price_usd || 0),
+        Number(pool.quote_token_price_usd || 0),
+      ].filter((price) => Number.isFinite(price) && price > 10);
+
+      poolData = {
+        name: pool.name || activeV3Asset.pool,
+        volume24h: Number(pool.volume_usd?.h24 || 0),
+        reserveUsd: Number(pool.reserve_in_usd || 0),
+        livePrice: priceOptions[0] || 0,
+        source: "GeckoTerminal",
+      };
+    } catch (geckoError) {
+      const response = await fetch(dexScreenerPoolUrl(selectedV3Network, poolAddress), { cache: "no-store" });
+      if (!response.ok) throw new Error("DexScreener request failed");
+      const pair = (await response.json())?.pair;
+      if (!pair) throw new Error("DexScreener pool data is missing");
+
+      poolData = {
+        name: `${pair.baseToken?.symbol || activeV3Asset.symbol} / ${pair.quoteToken?.symbol || "USDC"}`,
+        volume24h: Number(pair.volume?.h24 || 0),
+        reserveUsd: Number(pair.liquidity?.usd || 0),
+        livePrice: Number(pair.priceUsd || 0),
+        source: "DexScreener fallback",
+      };
+    }
+
+    const { volume24h, reserveUsd, livePrice } = poolData;
 
     if (volume24h > 0) inputs.v3PoolVolume.value = volume24h.toFixed(2);
     if (reserveUsd > 0) inputs.v3PoolActiveLiquidity.value = reserveUsd.toFixed(2);
@@ -619,7 +672,7 @@ async function loadLiveV3PoolData() {
       calculateV3();
     }
     outputs.v3PoolDataStatus.textContent =
-      `Live ${networkName} ${pool.name || activeV3Asset.pool}: 24h volume ${currency.format(volume24h)}, TVL/reserve ${currency.format(reserveUsd)}, price ${currency.format(livePrice)}. Источник: GeckoTerminal. Эти цифры близки к Uniswap Explore, но могут немного отличаться из-за задержки обновления и методики агрегатора.`;
+      `Live ${networkName} ${poolData.name}: 24h volume ${currency.format(volume24h)}, TVL/reserve ${currency.format(reserveUsd)}, price ${currency.format(livePrice)}. Источник: ${poolData.source}. Эти цифры близки к Uniswap Explore, но могут немного отличаться из-за задержки обновления и методики агрегатора.`;
   } catch (error) {
     outputs.v3PoolDataStatus.textContent =
       `Не удалось загрузить live-данные ${networkName}. Можно ввести объем и ликвидность вручную или позже подключить backend/proxy к The Graph для точного tick-расчета.`;

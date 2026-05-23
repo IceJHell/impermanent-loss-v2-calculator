@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-05-23 19:08
+
+### Added
+- В V3/V4 добавлены внешние ссылки на активный пул: Uniswap и DexScreener.
+- Для live-данных добавлен fallback через DexScreener, если GeckoTerminal временно не отвечает или отдает rate limit.
+
+### Fixed
+- При переключении Ethereum / Arbitrum / Base live-карточка больше не должна уходить в ноль только из-за временной ошибки GeckoTerminal.
+
+### Notes
+- Текущая проверка ETH/USDC 0.05% показала: Ethereum около 24% APR, Arbitrum около 5-6% APR по упрощенной формуле `volume × fee tier / TVL`. Значение 63% для Arbitrum текущими live-данными не подтвердилось.
+
 ## 2026-05-23 18:52
 
 ### Fixed

@@ -608,6 +608,38 @@ h2 {
   color: #120f0f;
 }
 
+.pool-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.pool-links a,
+.pool-links span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #171313;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.pool-links a:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.pool-links span {
+  color: var(--muted);
+}
+
 .live-pool-card {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
