@@ -2,6 +2,15 @@
 
 ## 2026-05-23 13:20
 
+- Пользователь спросил: совпадают ли цифры с Uniswap Explore и откуда они берутся.
+- Что сделали: уточнили подписи live-блока. GeckoTerminal-ликвидность названа `TVL / ликвидность пула`, а APR исправлен как годовая оценка из 24h-комиссии.
+- Какие файлы изменили: `index.html`, `script.js`, `CHANGELOG.md`, `CODEX_LOG.md`, `PROJECT_CONTEXT.md`.
+- Какие решения приняли: явно объяснять, что GeckoTerminal близок к Uniswap Explore, но не обязан совпадать один в один из-за источника, задержки обновления и методики агрегатора.
+- Какие проблемы остались: точный APR Uniswap/Poolfish требует tick-liquidity и backend/proxy к The Graph.
+- Следующий шаг: решить, нужен ли точный The Graph proxy для получения tick-liquidity.
+
+## 2026-05-23 13:20
+
 - Пользователь попросил: объяснить цифры Estimated Fees в Poolfish, почему Ethereum работает лучше Arbitrum, и можно ли подтянуть такие live-данные.
 - Что сделали: добавили выбор сети Ethereum/Arbitrum и кнопку live-загрузки данных ETH/USDC из GeckoTerminal. Калькулятор подтягивает 24h volume, liquidity/reserve и текущую цену, затем пересчитывает оценку комиссий.
 - Какие файлы изменили: `index.html`, `styles.css`, `script.js`, `CHANGELOG.md`, `CODEX_LOG.md`, `PROJECT_CONTEXT.md`, `TASKS.md`.

@@ -461,10 +461,7 @@ function calculateV3() {
   const daysToCover = dailyFeeValue > 0 && neededFees > 0 ? Math.ceil(neededFees / dailyFeeValue) : 0;
   const poolShare = poolActiveLiquidity > 0 ? totalLiquidity / (poolActiveLiquidity + totalLiquidity) : 0;
   const poolFeeEstimate = poolVolume > 0 && poolShare > 0 ? (selectedV3FeeTier / 100) * poolVolume * poolShare : 0;
-  const poolAprEstimate =
-    poolFeeEstimate > 0 && totalLiquidity > 0 && activeDays > 0
-      ? (poolFeeEstimate / totalLiquidity) * (365 / activeDays) * 100
-      : 0;
+  const poolAprEstimate = poolFeeEstimate > 0 && totalLiquidity > 0 ? (poolFeeEstimate / totalLiquidity) * 365 * 100 : 0;
 
   outputs.v3RangeStatus.textContent = future.status;
   outputs.v3StatusText.textContent = statusExplanation(future.status, activeV3Asset.symbol);
@@ -508,8 +505,8 @@ function calculateV3() {
   outputs.v3PoolAprEstimate.textContent = `${poolAprEstimate.toFixed(2)}%`;
   outputs.v3PoolDataStatus.textContent =
     poolFeeEstimate > 0
-      ? `По Poolfish-логике при объеме ${currency.format(poolVolume)} и активной ликвидности в диапазоне ${currency.format(poolActiveLiquidity)} расчетная комиссия вашей позиции за ${activeDays || "выбранный срок"} дней: ${currency.format(poolFeeEstimate)}. Это упрощенная справочная оценка, а не гарантия доходности.`
-      : "Упрощенная формула: комиссии ≈ fee tier × объем торгов × ваша позиция / (активная ликвидность в диапазоне + ваша позиция). Если объем и активная ликвидность равны нулю, расчет комиссий остается ручным через APR выше.";
+      ? `При 24h volume ${currency.format(poolVolume)} и TVL ${currency.format(poolActiveLiquidity)} расчетная комиссия вашей позиции за сутки: ${currency.format(poolFeeEstimate)}. Годовой APR из этих 24ч: ${poolAprEstimate.toFixed(2)}%. Это приближение: Poolfish точнее считает по активной tick-liquidity внутри диапазона.`
+      : "Упрощенная формула: комиссии за 24ч ≈ fee tier × объем за 24ч × ваша позиция / (TVL пула + ваша позиция). Если volume и TVL равны нулю, расчет комиссий остается ручным через APR выше.";
   outputs.v3FeeVerdict.textContent =
     neededFees === 0
       ? "В этом сценарии V3/V4 до комиссий не хуже HODL. Любые комиссии будут плюсом."
@@ -591,7 +588,7 @@ async function loadLiveV3PoolData() {
 
     calculateV3();
     outputs.v3PoolDataStatus.textContent =
-      `Live ${networkName} ${pool.name || activeV3Asset.pool}: 24h volume ${currency.format(volume24h)}, liquidity ${currency.format(reserveUsd)}, price ${currency.format(livePrice)}. Источник: GeckoTerminal. Ликвидность здесь берется как reserve/TVL пула, поэтому это приближение к Poolfish, а не точный tick-расчет.`;
+      `Live ${networkName} ${pool.name || activeV3Asset.pool}: 24h volume ${currency.format(volume24h)}, TVL/reserve ${currency.format(reserveUsd)}, price ${currency.format(livePrice)}. Источник: GeckoTerminal. Эти цифры близки к Uniswap Explore, но могут немного отличаться из-за задержки обновления и методики агрегатора.`;
   } catch (error) {
     outputs.v3PoolDataStatus.textContent =
       `Не удалось загрузить live-данные ${networkName}. Можно ввести объем и ликвидность вручную или позже подключить backend/proxy к The Graph для точного tick-расчета.`;

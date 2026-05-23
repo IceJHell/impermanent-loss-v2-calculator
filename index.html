@@ -395,17 +395,17 @@
                     <input id="v3PoolVolume" type="number" min="0" step="any" value="0" inputmode="decimal">
                   </label>
                   <label class="compact-field">
-                    <span>Активная ликвидность в диапазоне, $</span>
+                    <span>TVL / ликвидность пула, $</span>
                     <input id="v3PoolActiveLiquidity" type="number" min="0" step="any" value="0" inputmode="decimal">
                   </label>
                 </div>
                 <button class="secondary-action" id="v3LivePoolButton" type="button">Подтянуть live-данные пула</button>
                 <div class="poolfish-results">
-                  <div><span>Ваша доля активной ликвидности</span><strong id="v3PoolShare">0.00%</strong></div>
-                  <div><span>Оценка комиссий за период</span><strong id="v3PoolFeeEstimate">$0.00</strong></div>
-                  <div><span>APR из этих данных</span><strong id="v3PoolAprEstimate">0.00%</strong></div>
+                  <div><span>Ваша доля TVL пула</span><strong id="v3PoolShare">0.00%</strong></div>
+                  <div><span>Оценка комиссий за 24ч</span><strong id="v3PoolFeeEstimate">$0.00</strong></div>
+                  <div><span>Годовой APR из 24ч</span><strong id="v3PoolAprEstimate">0.00%</strong></div>
                 </div>
-                <p class="step-output" id="v3PoolDataStatus">Упрощенная формула: комиссии ≈ fee tier × объем торгов × ваша позиция / (активная ликвидность в диапазоне + ваша позиция). Если объем и активная ликвидность равны нулю, расчет комиссий остается ручным через APR выше.</p>
+                <p class="step-output" id="v3PoolDataStatus">Упрощенная формула: комиссии за 24ч ≈ fee tier × объем за 24ч × ваша позиция / (TVL пула + ваша позиция). Это приближение: Poolfish точнее использует активную tick-liquidity внутри диапазона.</p>
               </section>
             </div>
           </section>
