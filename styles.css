@@ -63,12 +63,12 @@ h1 {
 }
 
 .hero-quote {
-  max-width: 830px;
-  margin: 20px auto 0;
+  max-width: 1080px;
+  margin: 16px auto 0;
   color: #3c3638;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 650;
-  line-height: 1.45;
+  line-height: 1.35;
 }
 
 h2 {
