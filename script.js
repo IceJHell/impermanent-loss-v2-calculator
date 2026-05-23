@@ -47,6 +47,8 @@ const inputs = {
   v3FuturePrice: $("#v3FuturePrice"),
   v3ActiveDays: $("#v3ActiveDays"),
   v3AnnualYieldPercent: $("#v3AnnualYieldPercent"),
+  v3PoolVolume: $("#v3PoolVolume"),
+  v3PoolActiveLiquidity: $("#v3PoolActiveLiquidity"),
 };
 
 const outputs = {
@@ -136,6 +138,9 @@ const outputs = {
   v3RequiredApr: $("#v3RequiredApr"),
   v3FeeVerdict: $("#v3FeeVerdict"),
   v3PoolDataStatus: $("#v3PoolDataStatus"),
+  v3PoolShare: $("#v3PoolShare"),
+  v3PoolFeeEstimate: $("#v3PoolFeeEstimate"),
+  v3PoolAprEstimate: $("#v3PoolAprEstimate"),
 };
 
 const currency = new Intl.NumberFormat("en-US", {
@@ -393,6 +398,8 @@ function calculateV3() {
   const futurePrice = toPositiveNumber(inputs.v3FuturePrice);
   const activeDays = Math.max(0, Number(inputs.v3ActiveDays.value.replace(",", ".")) || 0);
   const annualYieldPercent = Math.max(0, Number(inputs.v3AnnualYieldPercent.value.replace(",", ".")) || 0);
+  const poolVolume = Math.max(0, Number(inputs.v3PoolVolume.value.replace(",", ".")) || 0);
+  const poolActiveLiquidity = Math.max(0, Number(inputs.v3PoolActiveLiquidity.value.replace(",", ".")) || 0);
 
   if (!totalLiquidity || !currentPrice || !lowerPrice || !upperPrice || !futurePrice) return;
 
@@ -430,6 +437,12 @@ function calculateV3() {
   const lossPercent = holdValue ? ((holdValue - lpValueBeforeFees) / holdValue) * 100 : 0;
   const dailyFeeValue = annualYieldPercent ? totalLiquidity * (annualYieldPercent / 100) / 365 : 0;
   const daysToCover = dailyFeeValue > 0 && neededFees > 0 ? Math.ceil(neededFees / dailyFeeValue) : 0;
+  const poolShare = poolActiveLiquidity > 0 ? totalLiquidity / (poolActiveLiquidity + totalLiquidity) : 0;
+  const poolFeeEstimate = poolVolume > 0 && poolShare > 0 ? (selectedV3FeeTier / 100) * poolVolume * poolShare : 0;
+  const poolAprEstimate =
+    poolFeeEstimate > 0 && totalLiquidity > 0 && activeDays > 0
+      ? (poolFeeEstimate / totalLiquidity) * (365 / activeDays) * 100
+      : 0;
 
   outputs.v3RangeStatus.textContent = future.status;
   outputs.v3StatusText.textContent = statusExplanation(future.status, activeV3Asset.symbol);
@@ -468,6 +481,13 @@ function calculateV3() {
   outputs.v3NeededFees.textContent = currency.format(neededFees);
   outputs.v3NeededFeePercent.textContent = `${neededFeePercent.toFixed(2)}%`;
   outputs.v3RequiredApr.textContent = activeDays > 0 ? `${requiredApr.toFixed(2)}%` : "—";
+  outputs.v3PoolShare.textContent = `${(poolShare * 100).toFixed(4)}%`;
+  outputs.v3PoolFeeEstimate.textContent = currency.format(poolFeeEstimate);
+  outputs.v3PoolAprEstimate.textContent = `${poolAprEstimate.toFixed(2)}%`;
+  outputs.v3PoolDataStatus.textContent =
+    poolFeeEstimate > 0
+      ? `По Poolfish-логике при объеме ${currency.format(poolVolume)} и активной ликвидности в диапазоне ${currency.format(poolActiveLiquidity)} расчетная комиссия вашей позиции за ${activeDays || "выбранный срок"} дней: ${currency.format(poolFeeEstimate)}. Это упрощенная справочная оценка, а не гарантия доходности.`
+      : "Упрощенная формула: комиссии ≈ fee tier × объем торгов × ваша позиция / (активная ликвидность в диапазоне + ваша позиция). Если объем и активная ликвидность равны нулю, расчет комиссий остается ручным через APR выше.";
   outputs.v3FeeVerdict.textContent =
     neededFees === 0
       ? "В этом сценарии V3/V4 до комиссий не хуже HODL. Любые комиссии будут плюсом."
@@ -515,45 +535,6 @@ async function loadAssetPrice() {
       `Не удалось загрузить цену ${asset.name}. Можно ввести текущую цену вручную.`;
   } finally {
     calculate();
-  }
-}
-
-async function tryLoadUniswapData() {
-  const poolId = activeV3Asset.uniswapPools[String(selectedV3FeeTier)];
-  if (!poolId) {
-    outputs.v3PoolDataStatus.textContent =
-      `Для пары ${activeV3Asset.pool} и fee tier ${selectedV3FeeTier}% в статической версии нет надежного публичного pool id. Расчет остается ручным.`;
-    return;
-  }
-
-  outputs.v3PoolDataStatus.textContent = "Пробую получить данные Uniswap из публичного subgraph...";
-
-  try {
-    const response = await fetch("https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        query: `{
-          pool(id: "${poolId}") {
-            feeTier
-            totalValueLockedUSD
-            volumeUSD
-            txCount
-          }
-        }`,
-      }),
-    });
-
-    if (!response.ok) throw new Error("Subgraph request failed");
-    const data = await response.json();
-    const pool = data?.data?.pool;
-    if (!pool) throw new Error("Pool is missing");
-
-    outputs.v3PoolDataStatus.textContent =
-      `Uniswap ${activeV3Asset.pool} ${selectedV3FeeTier}%: TVL ${currency.format(Number(pool.totalValueLockedUSD || 0))}, volume all-time ${currency.format(Number(pool.volumeUSD || 0))}, tx ${Number(pool.txCount || 0).toLocaleString("ru-RU")}. Для точной доходности все равно нужна ваша доля ликвидности и объем за период.`;
-  } catch (error) {
-    outputs.v3PoolDataStatus.textContent =
-      "Публичный Uniswap subgraph сейчас недоступен из статической страницы. Безопасный вариант для реальных pool-data: backend/proxy с THE_GRAPH_API_KEY в переменных окружения, не во фронтенде.";
   }
 }
 
@@ -661,9 +642,9 @@ document.querySelectorAll(".duration-button").forEach((button) => {
   inputs.v3FuturePrice,
   inputs.v3ActiveDays,
   inputs.v3AnnualYieldPercent,
+  inputs.v3PoolVolume,
+  inputs.v3PoolActiveLiquidity,
 ].forEach((input) => input.addEventListener("input", calculateV3));
-
-$("#v3PoolDataButton")?.addEventListener("click", tryLoadUniswapData);
 
 updateAssetText();
 updateV3AssetText();

@@ -379,13 +379,27 @@
               <section class="v3-card uniswap-card">
                 <div class="v3-card-title">
                   <div>
-                    <h2>Данные Uniswap</h2>
-                    <p>В статической странице нельзя безопасно хранить ключ The Graph. Поэтому кнопка пробует публичный endpoint, а при ошибке оставляет ручной расчет.</p>
+                    <h2>Данные Uniswap как в Poolfish</h2>
+                    <p>Poolfish берет объем торгов, активную ликвидность и fee tier. В статической версии безопаснее ввести эти данные вручную или подключить backend/proxy к The Graph.</p>
                   </div>
                   <span>optional</span>
                 </div>
-                <button class="secondary-action" id="v3PoolDataButton" type="button">Проверить публичный subgraph</button>
-                <p class="step-output" id="v3PoolDataStatus">Для ETH/USDC есть попытка получить TVL и volume из публичного subgraph. Для надежного подключения нужен backend/proxy.</p>
+                <div class="poolfish-grid">
+                  <label class="compact-field">
+                    <span>Объем торгов за период, $</span>
+                    <input id="v3PoolVolume" type="number" min="0" step="any" value="0" inputmode="decimal">
+                  </label>
+                  <label class="compact-field">
+                    <span>Активная ликвидность в диапазоне, $</span>
+                    <input id="v3PoolActiveLiquidity" type="number" min="0" step="any" value="0" inputmode="decimal">
+                  </label>
+                </div>
+                <div class="poolfish-results">
+                  <div><span>Ваша доля активной ликвидности</span><strong id="v3PoolShare">0.00%</strong></div>
+                  <div><span>Оценка комиссий за период</span><strong id="v3PoolFeeEstimate">$0.00</strong></div>
+                  <div><span>APR из этих данных</span><strong id="v3PoolAprEstimate">0.00%</strong></div>
+                </div>
+                <p class="step-output" id="v3PoolDataStatus">Упрощенная формула: комиссии ≈ fee tier × объем торгов × ваша позиция / (активная ликвидность в диапазоне + ваша позиция). Если объем и активная ликвидность равны нулю, расчет комиссий остается ручным через APR выше.</p>
               </section>
             </div>
           </section>

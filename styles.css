@@ -581,6 +581,40 @@ h2 {
   background: rgba(230, 189, 25, 0.2);
 }
 
+.poolfish-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.poolfish-results {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.poolfish-results div {
+  display: grid;
+  gap: 7px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #171414;
+  padding: 14px;
+}
+
+.poolfish-results span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.poolfish-results strong {
+  color: var(--text);
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
 .quantity-item strong {
   color: var(--accent);
 }
@@ -1187,6 +1221,8 @@ h2 {
   .v3-dashboard,
   .compact-grid,
   .break-even-grid,
+  .poolfish-grid,
+  .poolfish-results,
   .commission-grid,
   .memory-grid,
   .loss-cheatsheet,
