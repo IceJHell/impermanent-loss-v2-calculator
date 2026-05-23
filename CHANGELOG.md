@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-05-23 19:14
+
+### Added
+- Для вкладки Bitcoin/V3 добавлены live-пулы WBTC/USDC в Ethereum, Arbitrum и Base.
+
+### Fixed
+- Вкладка Bitcoin больше не показывает нулевые live-данные для стандартного fee tier 0.05%.
+- Live-цена из пула теперь подставляется не только для ETH, но и для WBTC.
+
 ## 2026-05-23 19:08
 
 ### Added

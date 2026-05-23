@@ -32,13 +32,30 @@ const assets = {
     id: "bitcoin",
     tab: "Bitcoin",
     name: "биткоина",
-    symbol: "BTC",
-    pool: "BTC/USDC",
+    symbol: "WBTC",
+    pool: "WBTC/USDC",
     defaultPrice: 100000,
     defaultLower: 75000,
     defaultUpper: 150000,
-    uniswapPools: {},
-    geckoPools: {},
+    uniswapPools: {
+      "0.05": "0x9a772018fbd77fcd2d25657e5c547baff3fd7d16",
+      "0.3": "0x99ac8ca7087fa4a2a1fb6357269965a2014abc35",
+    },
+    geckoPools: {
+      eth: {
+        "0.05": "0x9a772018fbd77fcd2d25657e5c547baff3fd7d16",
+        "0.3": "0x99ac8ca7087fa4a2a1fb6357269965a2014abc35",
+      },
+      arbitrum: {
+        "0.05": "0x0e4831319a50228b9e450861297ab92dee15b44f",
+        "0.3": "0x6985cb98ce393fce8d6272127f39013f61e36166",
+      },
+      base: {
+        "0.05": "0xf272fa039c68a79015b721df554f3bcb8a54016df9075e67a654b4d63e6afc51",
+        "0.3": "0x49e30c322e2474b3767de9fc4448c1e9ced6552f",
+        "1": "0x1383a958c6890d05449e0dfb2dae47ad20c5f8d7",
+      },
+    },
   },
 };
 
@@ -661,7 +678,7 @@ async function loadLiveV3PoolData() {
 
     if (volume24h > 0) inputs.v3PoolVolume.value = volume24h.toFixed(2);
     if (reserveUsd > 0) inputs.v3PoolActiveLiquidity.value = reserveUsd.toFixed(2);
-    if (livePrice > 0 && activeV3Asset.symbol === "ETH") {
+    if (livePrice > 0) {
       inputs.v3CurrentPrice.value = livePrice.toFixed(2);
     }
 
