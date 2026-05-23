@@ -12,6 +12,16 @@ const assets = {
       "0.05": "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
       "0.3": "0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8",
     },
+    geckoPools: {
+      eth: {
+        "0.05": "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+        "0.3": "0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8",
+      },
+      arbitrum: {
+        "0.05": "0xc31e54c7a869b9fcbecc14363cf510d1c41fa443",
+        "0.3": "0x17c14d2c404d167802b16c450d3c99f88f2c4f4d",
+      },
+    },
   },
   bitcoin: {
     id: "bitcoin",
@@ -23,6 +33,7 @@ const assets = {
     defaultLower: 75000,
     defaultUpper: 150000,
     uniswapPools: {},
+    geckoPools: {},
   },
 };
 
@@ -30,6 +41,7 @@ let activeAsset = assets.ethereum;
 let activeV3Asset = assets.ethereum;
 let selectedMonths = 1;
 let selectedV3FeeTier = 0.05;
+let selectedV3Network = "eth";
 let selectedHistoryDays = 30;
 let v3HistoryPrices = [];
 
@@ -187,6 +199,16 @@ function priceUrl(asset) {
 
 function historyUrl(asset, days) {
   return `https://api.coingecko.com/api/v3/coins/${asset.id}/market_chart?vs_currency=usd&days=${days}`;
+}
+
+function geckoPoolUrl(network, poolAddress) {
+  return `https://api.geckoterminal.com/api/v2/networks/${network}/pools/${poolAddress}`;
+}
+
+function resetV3PoolData(message) {
+  if (inputs.v3PoolVolume) inputs.v3PoolVolume.value = 0;
+  if (inputs.v3PoolActiveLiquidity) inputs.v3PoolActiveLiquidity.value = 0;
+  if (message && outputs.v3PoolDataStatus) outputs.v3PoolDataStatus.textContent = message;
 }
 
 function formatDate(timestamp) {
@@ -538,6 +560,44 @@ async function loadAssetPrice() {
   }
 }
 
+async function loadLiveV3PoolData() {
+  const pools = activeV3Asset.geckoPools?.[selectedV3Network] || {};
+  const poolAddress = pools[String(selectedV3FeeTier)];
+  const networkName = selectedV3Network === "eth" ? "Ethereum" : "Arbitrum";
+
+  if (!poolAddress) {
+    outputs.v3PoolDataStatus.textContent =
+      `Для ${activeV3Asset.pool} ${selectedV3FeeTier}% в сети ${networkName} пока нет настроенного live-пула. Можно оставить ручной ввод.`;
+    return;
+  }
+
+  outputs.v3PoolDataStatus.textContent = `Загружаю live-данные ${networkName} из GeckoTerminal...`;
+
+  try {
+    const response = await fetch(geckoPoolUrl(selectedV3Network, poolAddress), { cache: "no-store" });
+    if (!response.ok) throw new Error("GeckoTerminal request failed");
+    const pool = (await response.json())?.data?.attributes;
+    if (!pool) throw new Error("Pool data is missing");
+
+    const volume24h = Number(pool.volume_usd?.h24 || 0);
+    const reserveUsd = Number(pool.reserve_in_usd || 0);
+    const livePrice = Number(pool.base_token_price_quote_token || pool.base_token_price_usd || 0);
+
+    if (volume24h > 0) inputs.v3PoolVolume.value = volume24h.toFixed(2);
+    if (reserveUsd > 0) inputs.v3PoolActiveLiquidity.value = reserveUsd.toFixed(2);
+    if (livePrice > 0 && activeV3Asset.symbol === "ETH") {
+      inputs.v3CurrentPrice.value = livePrice.toFixed(2);
+    }
+
+    calculateV3();
+    outputs.v3PoolDataStatus.textContent =
+      `Live ${networkName} ${pool.name || activeV3Asset.pool}: 24h volume ${currency.format(volume24h)}, liquidity ${currency.format(reserveUsd)}, price ${currency.format(livePrice)}. Источник: GeckoTerminal. Ликвидность здесь берется как reserve/TVL пула, поэтому это приближение к Poolfish, а не точный tick-расчет.`;
+  } catch (error) {
+    outputs.v3PoolDataStatus.textContent =
+      `Не удалось загрузить live-данные ${networkName}. Можно ввести объем и ликвидность вручную или позже подключить backend/proxy к The Graph для точного tick-расчета.`;
+  }
+}
+
 function selectAsset(assetId) {
   activeAsset = assets[assetId];
   document.querySelectorAll(".asset-tab").forEach((tab) => {
@@ -586,6 +646,7 @@ function selectV3Asset(assetId) {
   inputs.v3LowerPrice.value = activeV3Asset.defaultLower;
   inputs.v3UpperPrice.value = activeV3Asset.defaultUpper;
   inputs.v3FuturePrice.value = activeV3Asset.defaultPrice * 2;
+  resetV3PoolData(`Выбрана пара ${activeV3Asset.pool}. Нажмите “Подтянуть live-данные пула” или введите volume/liquidity вручную.`);
   updateV3AssetText();
   calculateV3();
   loadV3History(selectedHistoryDays);
@@ -607,6 +668,17 @@ document.querySelectorAll(".fee-tier-button").forEach((button) => {
   button.addEventListener("click", () => {
     selectedV3FeeTier = Number(button.dataset.feeTier);
     document.querySelectorAll(".fee-tier-button").forEach((item) => item.classList.toggle("active", item === button));
+    resetV3PoolData(`Fee tier изменен на ${selectedV3FeeTier}%. Нажмите “Подтянуть live-данные пула”, чтобы обновить volume/liquidity.`);
+    calculateV3();
+  });
+});
+
+document.querySelectorAll(".network-button").forEach((button) => {
+  button.addEventListener("click", () => {
+    selectedV3Network = button.dataset.network;
+    document.querySelectorAll(".network-button").forEach((item) => item.classList.toggle("active", item === button));
+    const networkName = selectedV3Network === "eth" ? "Ethereum" : "Arbitrum";
+    resetV3PoolData(`Сеть изменена на ${networkName}. Нажмите “Подтянуть live-данные пула”, чтобы обновить volume/liquidity.`);
     calculateV3();
   });
 });
@@ -645,6 +717,8 @@ document.querySelectorAll(".duration-button").forEach((button) => {
   inputs.v3PoolVolume,
   inputs.v3PoolActiveLiquidity,
 ].forEach((input) => input.addEventListener("input", calculateV3));
+
+$("#v3LivePoolButton")?.addEventListener("click", loadLiveV3PoolData);
 
 updateAssetText();
 updateV3AssetText();

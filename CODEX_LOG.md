@@ -2,6 +2,15 @@
 
 ## 2026-05-23 13:20
 
+- Пользователь попросил: объяснить цифры Estimated Fees в Poolfish, почему Ethereum работает лучше Arbitrum, и можно ли подтянуть такие live-данные.
+- Что сделали: добавили выбор сети Ethereum/Arbitrum и кнопку live-загрузки данных ETH/USDC из GeckoTerminal. Калькулятор подтягивает 24h volume, liquidity/reserve и текущую цену, затем пересчитывает оценку комиссий.
+- Какие файлы изменили: `index.html`, `styles.css`, `script.js`, `CHANGELOG.md`, `CODEX_LOG.md`, `PROJECT_CONTEXT.md`, `TASKS.md`.
+- Какие решения приняли: использовать GeckoTerminal как публичный источник без ключа для приближенной live-оценки; точный Poolfish/The Graph tick-расчет оставить как будущий backend/proxy.
+- Какие проблемы остались: liquidity из GeckoTerminal является reserve/TVL пула, а не точной активной tick-liquidity внутри диапазона.
+- Следующий шаг: проверить live-кнопку на GitHub Pages и решить, нужен ли точный The Graph proxy.
+
+## 2026-05-23 13:20
+
 - Пользователь попросил: посмотреть Poolfish URL и понять, можно ли взять оттуда нужные данные для нашего V3/V4-калькулятора.
 - Что сделали: изучили Next.js-бандл Poolfish и нашли принцип расчета комиссий через fee tier, объем торгов и долю активной ликвидности. В калькулятор добавлен блок “Данные Uniswap как в Poolfish” с ручным вводом объема торгов и активной ликвидности в диапазоне.
 - Какие файлы изменили: `index.html`, `styles.css`, `script.js`, `CHANGELOG.md`, `CODEX_LOG.md`, `PROJECT_CONTEXT.md`, `TASKS.md`.

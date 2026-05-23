@@ -195,6 +195,11 @@
                 <button class="fee-tier-button" type="button" data-fee-tier="0.3"><strong>0.3%</strong><span>Большинство пар</span></button>
                 <button class="fee-tier-button" type="button" data-fee-tier="1"><strong>1%</strong><span>Волатильные пары</span></button>
               </div>
+              <div class="network-choice" aria-label="Сеть для онлайн-данных">
+                <span>Сеть для live-данных</span>
+                <button class="network-button active" type="button" data-network="eth">Ethereum</button>
+                <button class="network-button" type="button" data-network="arbitrum">Arbitrum</button>
+              </div>
             </section>
 
             <section class="v3-card v3-step-card">
@@ -394,6 +399,7 @@
                     <input id="v3PoolActiveLiquidity" type="number" min="0" step="any" value="0" inputmode="decimal">
                   </label>
                 </div>
+                <button class="secondary-action" id="v3LivePoolButton" type="button">Подтянуть live-данные пула</button>
                 <div class="poolfish-results">
                   <div><span>Ваша доля активной ликвидности</span><strong id="v3PoolShare">0.00%</strong></div>
                   <div><span>Оценка комиссий за период</span><strong id="v3PoolFeeEstimate">$0.00</strong></div>

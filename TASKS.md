@@ -30,6 +30,7 @@
 
 - Проверить опубликованную GitHub Pages-страницу после push/deploy.
 - Визуально пройти V3/V4 на desktop и mobile.
+- Проверить live-загрузку GeckoTerminal для ETH/USDC Ethereum и Arbitrum.
 - Решить, нужен ли backend/proxy для реальных Uniswap pool-data.
 - Если backend нужен, добавить `THE_GRAPH_API_KEY=your_graph_api_key_here` только в `.env.example`, а реальный ключ пользователь добавляет вручную в `.env` или переменные окружения.
 - Проверить блок “Данные Uniswap как в Poolfish” на реальных цифрах ETH/USDC Arbitrum.

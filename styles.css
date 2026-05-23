@@ -565,6 +565,40 @@ h2 {
   background: #2b260f;
 }
 
+.network-choice {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #171414;
+  padding: 10px;
+}
+
+.network-choice span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.network-button {
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #241f1f;
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 900;
+  padding: 8px 14px;
+}
+
+.network-button.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #120f0f;
+}
+
 .secondary-action {
   width: fit-content;
   min-height: 42px;
@@ -1234,6 +1268,10 @@ h2 {
 
   .fee-tier-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .network-choice {
+    grid-template-columns: 1fr;
   }
 
   .protocol-tabs,
