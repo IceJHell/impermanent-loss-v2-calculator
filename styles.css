@@ -23,7 +23,7 @@ body {
   margin: 0;
   min-width: 320px;
   overflow-x: hidden;
-  background: linear-gradient(180deg, #fbfbfb 0 270px, var(--bg) 270px);
+  background: linear-gradient(180deg, #fbfbfb 0 330px, var(--bg) 330px);
   color: var(--text);
   font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
 }
@@ -42,7 +42,7 @@ input {
 .hero {
   color: #0c090a;
   text-align: center;
-  padding-bottom: 34px;
+  padding-bottom: 48px;
 }
 
 .eyebrow {
@@ -1270,7 +1270,7 @@ h2 {
 
 @media (max-width: 760px) {
   body {
-    background: linear-gradient(180deg, #fbfbfb 0 230px, var(--bg) 230px);
+    background: linear-gradient(180deg, #fbfbfb 0 270px, var(--bg) 270px);
   }
 
   .page {
@@ -1279,7 +1279,7 @@ h2 {
   }
 
   .hero {
-    padding-bottom: 26px;
+    padding-bottom: 34px;
   }
 
   h1 {
