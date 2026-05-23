@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Непостоянные потери V2, V3 и V4 на примере биткоина и эфира</title>
-    <link rel="stylesheet" href="styles.css?v=20260523-1924">
+    <link rel="stylesheet" href="styles.css?v=20260523-2007">
   </head>
   <body>
     <main class="page">
@@ -241,7 +241,7 @@
               <p class="step-output" id="v3StartComposition">Стартовый состав появится после ввода диапазона.</p>
             </section>
 
-            <section class="v3-card v3-step-card">
+            <section class="v3-card v3-step-card v3-price-step">
               <div class="step-head">
                 <span class="step-number">3</span>
                 <div>
@@ -249,11 +249,13 @@
                   <p>Смотрим, останется ли цена внутри диапазона или позиция превратится полностью в USDC/монету.</p>
                 </div>
               </div>
-              <label class="compact-field"><span id="v3FuturePriceLabel">ETH потом, $</span><input id="v3FuturePrice" type="number" min="0" step="any" value="4000" inputmode="decimal"></label>
-              <div class="status-card">
-                <span>Статус будущей цены</span>
-                <strong id="v3RangeStatus">Вне диапазона</strong>
-                <p id="v3StatusText">Позиция будет пересчитана после ввода цены.</p>
+              <div class="future-price-controls">
+                <label class="compact-field"><span id="v3FuturePriceLabel">ETH потом, $</span><input id="v3FuturePrice" type="number" min="0" step="any" value="4000" inputmode="decimal"></label>
+                <div class="status-card">
+                  <span>Статус будущей цены</span>
+                  <strong id="v3RangeStatus">Вне диапазона</strong>
+                  <p id="v3StatusText">Позиция будет пересчитана после ввода цены.</p>
+                </div>
               </div>
               <section class="chart-panel embedded-range-panel">
                 <div class="chart-head">
@@ -370,30 +372,6 @@
                 <p class="result-summary" id="v3ResultSummary">Введите диапазон и будущую цену, чтобы увидеть результат.</p>
           </section>
 
-          <section class="chart-panel history-wide-panel">
-                <div class="chart-head">
-                  <div>
-                    <h2>История цены и диапазон</h2>
-                    <p>Зеленая зона — ваш диапазон. Желтая линия — текущая цена, зеленый пунктир — будущая.</p>
-                  </div>
-                  <div class="history-tabs" aria-label="Период графика цены">
-                    <button class="history-button active" type="button" data-days="30">1M</button>
-                    <button class="history-button" type="button" data-days="90">3M</button>
-                    <button class="history-button" type="button" data-days="180">6M</button>
-                    <button class="history-button" type="button" data-days="270">9M</button>
-                    <button class="history-button" type="button" data-days="365">12M</button>
-                  </div>
-                </div>
-                <div class="range-chart-wrap">
-                  <svg id="v3HistoryChart" class="range-chart history-chart" viewBox="0 0 900 320" role="img" aria-label="История цены и диапазон V3/V4"></svg>
-                </div>
-                <div class="history-stats">
-                  <span id="v3HistoryMin">MIN —</span>
-                  <span id="v3HistoryMax">MAX —</span>
-                  <span id="v3HistoryAvg">AVG —</span>
-                </div>
-              </section>
-
           <aside class="explain">
             <h2>Логика V3/V4 простыми словами</h2>
             <p id="v3ExplainText">Пока цена внутри диапазона, позиция постепенно балансируется между USDC и выбранной монетой. Если цена уходит выше верхней границы, позиция становится почти полностью USDC. Если ниже нижней границы — почти полностью монетой.</p>
@@ -403,6 +381,6 @@
       </section>
     </main>
 
-    <script src="script.js?v=20260523-1924"></script>
+    <script src="script.js?v=20260523-2007"></script>
   </body>
 </html>

@@ -538,6 +538,27 @@ h2 {
   align-items: stretch;
 }
 
+.v3-price-step {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(320px, 0.78fr) minmax(460px, 1.12fr);
+  align-items: start;
+}
+
+.v3-price-step .step-head,
+.v3-price-step .future-price-controls {
+  grid-column: 1;
+}
+
+.future-price-controls {
+  display: grid;
+  gap: 16px;
+}
+
+.v3-price-step .embedded-range-panel {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
+
 .v3-commission-step .step-head {
   align-self: start;
 }
@@ -790,29 +811,6 @@ h2 {
   white-space: nowrap;
 }
 
-.history-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.history-button {
-  min-width: 54px;
-  min-height: 36px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: #211f20;
-  color: var(--text);
-  cursor: pointer;
-  font-weight: 800;
-}
-
-.history-button.active {
-  background: #2f7cff;
-  border-color: #2f7cff;
-  color: #fff;
-}
-
 .range-chart-wrap {
   overflow: hidden;
   border: 1px solid var(--line);
@@ -827,14 +825,6 @@ h2 {
   width: 100%;
   height: auto;
   min-height: 260px;
-}
-
-.history-wide-panel {
-  margin-top: 24px;
-}
-
-.history-wide-panel .range-chart {
-  min-height: 360px;
 }
 
 .range-chart text {
@@ -867,16 +857,6 @@ h2 {
   stroke: #8fe3b1;
   stroke-width: 4;
   stroke-dasharray: 8 8;
-}
-
-.range-chart .history-line {
-  fill: none;
-  stroke: #2f7cff;
-  stroke-width: 3;
-}
-
-.range-chart .history-area {
-  fill: rgba(47, 124, 255, 0.18);
 }
 
 .range-chart .range-band {
@@ -935,22 +915,6 @@ h2 {
   color: var(--muted);
   font-size: 14px;
   font-weight: 700;
-}
-
-.history-stats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.history-stats span {
-  border-radius: 999px;
-  background: #211f20;
-  color: var(--muted);
-  font-weight: 800;
-  padding: 10px 12px;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
 }
 
 .results {
@@ -1432,7 +1396,6 @@ h2 {
   .memory-grid,
   .loss-cheatsheet,
   .strategy-compare,
-  .history-stats,
   .result-grid {
     grid-template-columns: 1fr;
   }
@@ -1447,6 +1410,17 @@ h2 {
 
   .v3-commission-step {
     grid-template-columns: 1fr;
+  }
+
+  .v3-price-step {
+    grid-template-columns: 1fr;
+  }
+
+  .v3-price-step .step-head,
+  .v3-price-step .future-price-controls,
+  .v3-price-step .embedded-range-panel {
+    grid-column: 1;
+    grid-row: auto;
   }
 
   .v3-commission-step .break-even-grid {

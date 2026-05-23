@@ -64,8 +64,6 @@ let activeV3Asset = assets.ethereum;
 let selectedMonths = 1;
 let selectedV3FeeTier = 0.05;
 let selectedV3Network = "eth";
-let selectedHistoryDays = 30;
-let v3HistoryPrices = [];
 
 const $ = (selector) => document.querySelector(selector);
 
@@ -129,10 +127,6 @@ const outputs = {
   v3ChartSummary: $("#v3ChartSummary"),
   v3ChartBadge: $("#v3ChartBadge"),
   v3RangeChart: $("#v3RangeChart"),
-  v3HistoryChart: $("#v3HistoryChart"),
-  v3HistoryMin: $("#v3HistoryMin"),
-  v3HistoryMax: $("#v3HistoryMax"),
-  v3HistoryAvg: $("#v3HistoryAvg"),
   v3UsdcShare: $("#v3UsdcShare"),
   v3AssetShare: $("#v3AssetShare"),
   v3UsdcShareText: $("#v3UsdcShareText"),
@@ -219,10 +213,6 @@ function clamp(value, min, max) {
 
 function priceUrl(asset) {
   return `https://api.coingecko.com/api/v3/simple/price?ids=${asset.id}&vs_currencies=usd&include_last_updated_at=true`;
-}
-
-function historyUrl(asset, days) {
-  return `https://api.coingecko.com/api/v3/coins/${asset.id}/market_chart?vs_currency=usd&days=${days}`;
 }
 
 function geckoPoolUrl(network, poolAddress) {
@@ -423,58 +413,6 @@ function renderV3Chart({ currentPrice, lowerPrice, upperPrice, futurePrice, stat
   `;
 }
 
-function renderV3HistoryChart(prices, lowerPrice, upperPrice, currentPrice, futurePrice) {
-  if (!prices.length) {
-    outputs.v3HistoryMin.textContent = "MIN —";
-    outputs.v3HistoryMax.textContent = "MAX —";
-    outputs.v3HistoryAvg.textContent = "AVG —";
-    outputs.v3HistoryChart.innerHTML = `<text x="450" y="165" text-anchor="middle">История цены не загрузилась. Расчет работает вручную.</text>`;
-    return;
-  }
-
-  const series = prices.slice(-selectedHistoryDays);
-  const minSeries = Math.min(...series);
-  const maxSeries = Math.max(...series);
-  const avgSeries = series.reduce((sum, price) => sum + price, 0) / series.length;
-  const min = Math.min(minSeries, lowerPrice, currentPrice, futurePrice) * 0.96;
-  const max = Math.max(maxSeries, upperPrice, currentPrice, futurePrice) * 1.04;
-  const x = (index) => 60 + (index / Math.max(1, series.length - 1)) * 780;
-  const y = (price) => 260 - ((price - min) / (max - min)) * 210;
-  const points = series.map((price, index) => `${x(index)},${y(price)}`).join(" ");
-  const areaPoints = `60,260 ${points} 840,260`;
-  const lowerY = y(lowerPrice);
-  const upperY = y(upperPrice);
-  const currentY = y(currentPrice);
-  const futureY = y(futurePrice);
-
-  outputs.v3HistoryMin.textContent = `MIN ${currency.format(minSeries)}`;
-  outputs.v3HistoryMax.textContent = `MAX ${currency.format(maxSeries)}`;
-  outputs.v3HistoryAvg.textContent = `AVG ${currency.format(avgSeries)}`;
-  outputs.v3HistoryChart.innerHTML = `
-    <rect x="60" y="${Math.min(lowerY, upperY)}" width="780" height="${Math.abs(lowerY - upperY)}" class="range-band"></rect>
-    <polygon class="history-area" points="${areaPoints}"></polygon>
-    <polyline class="history-line" points="${points}"></polyline>
-    <line x1="60" y1="${currentY}" x2="840" y2="${currentY}" class="current-line"></line>
-    <line x1="60" y1="${futureY}" x2="840" y2="${futureY}" class="future-line"></line>
-    <line x1="60" y1="260" x2="840" y2="260" class="axis"></line>
-    <text x="76" y="${currentY - 8}">сейчас ${currency.format(currentPrice)}</text>
-    <text x="76" y="${futureY - 8}">сценарий ${currency.format(futurePrice)}</text>
-  `;
-}
-
-async function loadV3History(days) {
-  try {
-    const response = await fetch(historyUrl(activeV3Asset, days), { cache: "no-store" });
-    if (!response.ok) throw new Error("History request failed");
-    const data = await response.json();
-    v3HistoryPrices = Array.isArray(data.prices) ? data.prices.map((item) => item[1]).filter(Boolean) : [];
-  } catch (error) {
-    v3HistoryPrices = [];
-  } finally {
-    calculateV3();
-  }
-}
-
 function calculateV3() {
   const totalLiquidity = toPositiveNumber(inputs.v3TotalLiquidity);
   const currentPrice = toPositiveNumber(inputs.v3CurrentPrice);
@@ -589,7 +527,6 @@ function calculateV3() {
     usdcValue: future.usdc,
     assetValue: future.asset * futurePrice,
   });
-  renderV3HistoryChart(v3HistoryPrices, lowerPrice, upperPrice, currentPrice, futurePrice);
 
   setTone(outputs.v3DifferenceValue, difference);
   setTone(outputs.v3CompareIlValue, differenceBeforeFees);
@@ -747,7 +684,6 @@ function selectV3Asset(assetId) {
   resetV3PoolData(`Выбрана пара ${activeV3Asset.pool}. Live-данные обновляются автоматически.`);
   updateV3AssetText();
   calculateV3();
-  loadV3History(selectedHistoryDays);
   loadLiveV3PoolData();
 }
 
@@ -781,14 +717,6 @@ document.querySelectorAll(".network-button").forEach((button) => {
     resetV3PoolData(`Сеть изменена на ${networkName}. Live-данные обновляются автоматически.`);
     calculateV3();
     loadLiveV3PoolData();
-  });
-});
-
-document.querySelectorAll(".history-button").forEach((button) => {
-  button.addEventListener("click", () => {
-    selectedHistoryDays = Number(button.dataset.days);
-    document.querySelectorAll(".history-button").forEach((item) => item.classList.toggle("active", item === button));
-    loadV3History(selectedHistoryDays);
   });
 });
 
@@ -826,5 +754,4 @@ updateV3AssetText();
 calculate();
 calculateV3();
 loadAssetPrice();
-loadV3History(selectedHistoryDays);
 loadLiveV3PoolData();
